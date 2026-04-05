@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.app
+*.dmg
+.DS_Store
+src/viewer/public/chat-data.json
+src/viewer/public/assets/

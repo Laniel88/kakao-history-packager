@@ -1,0 +1,23 @@
+{
+  "name": "kakao-history-packager",
+  "version": "1.0.0",
+  "description": "카카오톡 대화 내보내기를 뷰어 앱으로 빌드",
+  "type": "module",
+  "bin": {
+    "kakao-history-packager": "./src/cli/index.ts"
+  },
+  "scripts": {
+    "build": "npx tsx src/cli/index.ts",
+    "dev": "cd src/viewer && pnpm dev",
+    "generate-sample": "npx tsx src/cli/generate-sample-data.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.0",
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
