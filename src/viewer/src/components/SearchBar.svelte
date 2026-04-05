@@ -98,7 +98,7 @@
         disabled={!query.trim()}
         title="다음 결과 (위로)"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill={query.trim() ? '#555' : '#ccc'}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill={query.trim() ? '#555' : '#ccc'}>
           <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
         </svg>
       </button>
@@ -108,12 +108,12 @@
         disabled={$searchResultCount <= 1}
         title="이전 결과 (아래로)"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill={$searchResultCount > 1 ? '#555' : '#ccc'}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill={$searchResultCount > 1 ? '#555' : '#ccc'}>
           <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
         </svg>
       </button>
       <button class="close-btn" onclick={close} title="닫기">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#555">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#555">
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
         </svg>
       </button>

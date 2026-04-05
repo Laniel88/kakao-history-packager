@@ -228,7 +228,7 @@
     line-height: 1.5;
     word-break: break-word;
     white-space: pre-wrap;
-    max-width: 380px;
+    max-width: min(calc(100vw - 130px), 1500px);
     position: relative;
   }
 

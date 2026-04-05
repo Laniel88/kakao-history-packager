@@ -48,6 +48,12 @@
 </script>
 
 <header class="header">
+  <div class="header-titlebar">
+    <div class="opacity-slider">
+      <input type="range" min="0" max="100" value="100" disabled />
+    </div>
+  </div>
+  <div class="header-main">
   <div class="header-left">
     <div class="profile-photo">
       {#if profilePhoto}
@@ -116,22 +122,33 @@
       {/if}
     </div>
   </div>
+  </div>
 </header>
 
 <style>
   .header {
+    display: flex;
+    flex-direction: column;
+    background: var(--chat-bg);
+    -webkit-app-region: drag;
+  }
+
+  .header-titlebar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 28px;
+    min-height: 28px;
+    padding: 0 12px;
+  }
+
+  .header-main {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 58px;
     min-height: 58px;
     padding: 0 12px;
-    /* macOS traffic light 영역: Pake hide-title-bar에서 28px 상단 여백 */
-    padding-top: 28px;
-    height: 86px;
-    min-height: 86px;
-    background: var(--chat-bg);
-    -webkit-app-region: drag;
   }
 
   .header-left {
@@ -189,6 +206,32 @@
     align-items: center;
     gap: 4px;
     -webkit-app-region: no-drag;
+  }
+
+  .opacity-slider {
+    display: flex;
+    align-items: center;
+    -webkit-app-region: no-drag;
+  }
+
+  .opacity-slider input[type="range"] {
+    -webkit-appearance: none;
+    width: 56px;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+    outline: none;
+    cursor: default;
+  }
+
+  .opacity-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0.5px 2px rgba(0, 0, 0, 0.3);
+    cursor: default;
   }
 
   .header-icon {
