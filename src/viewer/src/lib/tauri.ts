@@ -9,14 +9,11 @@ export async function resolveAssetUrls(filenames: string[]) {
   const map = new Map<string, string>();
 
   if (isTauri) {
-    const { resolveResource } = await import('@tauri-apps/api/path');
-    const { convertFileSrc } = await import('@tauri-apps/api/core');
+    // Use custom res:// protocol registered in Rust
     for (const f of filenames) {
-      const resourcePath = await resolveResource(`assets/${f}`);
-      map.set(f, convertFileSrc(resourcePath));
+      map.set(f, `res://localhost/assets/${f}`);
     }
   } else {
-    // Dev fallback: relative URLs
     for (const f of filenames) {
       map.set(f, `assets/${f}`);
     }
@@ -25,14 +22,14 @@ export async function resolveAssetUrls(filenames: string[]) {
   assetUrlMap.set(map);
 }
 
-export async function resolveDataUrl(filename: string): Promise<string> {
+export async function loadResourceJson<T>(path: string): Promise<T> {
   if (isTauri) {
-    const { resolveResource } = await import('@tauri-apps/api/path');
-    const { convertFileSrc } = await import('@tauri-apps/api/core');
-    const resourcePath = await resolveResource(`data/${filename}`);
-    return convertFileSrc(resourcePath);
+    const { invoke } = await import('@tauri-apps/api/core');
+    const json = await invoke<string>('read_resource', { path });
+    return JSON.parse(json);
   }
-  return `data/${filename}`;
+  const response = await fetch(path);
+  return response.json();
 }
 
 export async function openMediaViewer(filename: string) {
