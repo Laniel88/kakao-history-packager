@@ -96,7 +96,7 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
                   <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
                 </svg>
-                <span>만료된 사진</span>
+                <span>사진</span>
               </div>
             {/if}
           {:else if message.contentType === 'video'}
@@ -133,7 +133,7 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
                   <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
                 </svg>
-                <span>만료된 사진</span>
+                <span>사진</span>
               </div>
             {/if}
           {:else if message.contentType === 'video'}
@@ -169,6 +169,7 @@
     width: 42px;
     min-width: 42px;
     padding-top: 2px;
+    margin-right: 6px;
   }
 
   .avatar {
@@ -222,7 +223,7 @@
   }
 
   .bubble {
-    padding: 8px 12px;
+    padding: 7px 10px;
     border-radius: 6px;
     line-height: 1.5;
     word-break: break-word;
@@ -236,14 +237,10 @@
     color: var(--bubble-other-text);
   }
 
-  .other-bubble.has-tail {
-    border-top-left-radius: 0;
-  }
-
   .other-bubble.has-tail::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 6px;
     left: -6px;
     width: 0;
     height: 0;
@@ -256,14 +253,10 @@
     color: var(--bubble-mine-text);
   }
 
-  .mine-bubble.has-tail {
-    border-top-right-radius: 0;
-  }
-
   .mine-bubble.has-tail::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 6px;
     right: -6px;
     width: 0;
     height: 0;
@@ -325,12 +318,17 @@
     justify-content: center;
   }
 
-  /* Images/videos render without bubble background */
+  /* Images/videos render without bubble background or tail */
   .bubble:has(.chat-image),
   .bubble:has(.video-thumbnail) {
     padding: 0;
     background: transparent;
     border-radius: 0;
+  }
+
+  .bubble:has(.chat-image)::before,
+  .bubble:has(.video-thumbnail)::before {
+    display: none;
   }
 
   .bubble:has(.image-placeholder) {

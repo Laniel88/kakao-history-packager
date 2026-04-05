@@ -8,22 +8,33 @@
 
   let scroller: VirtualScroller;
 
+  // Media types that break profile grouping
+  function isMediaMessage(item: ChatItem): boolean {
+    return item.type === 'message' && (item.contentType === 'photo' || item.contentType === 'video');
+  }
+
   // Group consecutive messages from same sender for profile display
+  // Media messages always start a new profile group
   function shouldShowProfile(item: ChatItem, index: number): boolean {
     if (item.type !== 'message' || item.isMyMessage) return false;
     if (index === 0) return true;
     const prev = items[index - 1];
     if (prev.type !== 'message') return true;
-    return prev.sender !== item.sender;
+    if (prev.sender !== item.sender) return true;
+    if (isMediaMessage(item)) return true;
+    return false;
   }
 
   // Show tail on first message in a sender group (both mine and other's)
+  // Media messages always get a new tail
   function shouldShowTail(item: ChatItem, index: number): boolean {
     if (item.type !== 'message') return false;
     if (index === 0) return true;
     const prev = items[index - 1];
     if (prev.type !== 'message') return true;
-    return prev.sender !== item.sender;
+    if (prev.sender !== item.sender) return true;
+    if (isMediaMessage(item)) return true;
+    return false;
   }
 
   // Show time on last message before sender change or date separator
@@ -48,7 +59,7 @@
     {#if item.type === 'date-separator'}
       <DateSeparator date={item.date} />
     {:else}
-      <div class="message-wrapper" class:first-in-group={shouldShowProfile(item, index)} class:continuation={!shouldShowProfile(item, index) && !item.isMyMessage}>
+      <div class="message-wrapper" class:first-in-group={shouldShowTail(item, index)} class:continuation={!shouldShowProfile(item, index) && !item.isMyMessage}>
         <MessageBubble
           message={item}
           showProfile={shouldShowProfile(item, index)}

@@ -92,6 +92,37 @@ export function parseTxt(txtContent: string): ParseResult {
 
       participants.add(sender);
 
+      // "이모티콘 XXX" → 이모티콘 메시지 + 텍스트 메시지로 분리
+      const trimmedContent = content.trim();
+      if (contentType === 'text' && trimmedContent.startsWith('이모티콘 ') && trimmedContent.length > 5) {
+        const emoticonMsg: Message = {
+          type: 'message',
+          id: currentId++,
+          timestamp,
+          sender,
+          contentType: 'emoticon',
+          text: '',
+          mediaFilename: null,
+          isMyMessage: false,
+        };
+        items.push(emoticonMsg);
+
+        const textPart = trimmedContent.slice(4).trim(); // "이모티콘 " 제거
+        const textMsg: Message = {
+          type: 'message',
+          id: currentId++,
+          timestamp,
+          sender,
+          contentType: 'text',
+          text: textPart,
+          mediaFilename: null,
+          isMyMessage: false,
+        };
+        items.push(textMsg);
+        lastMessage = textMsg;
+        continue;
+      }
+
       const message: Message = {
         type: 'message',
         id: currentId++,
