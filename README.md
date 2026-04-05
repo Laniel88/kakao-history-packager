@@ -13,6 +13,8 @@
 - 미디어 뷰어 (별도 윈도우, 좌우 네비게이션)
 - 프로필 설정 (이름, 사진 — `~/.kakao-chat-viewer/`에 저장)
 - 원본 에셋 무손실 보존
+- 대용량 대화 지원 — JSON 청크 분할 + 가상 스크롤 (prefix-sum O(log n)), ~10MB txt / 5만건+ 메시지 테스트 완료
+- 에셋 외부화 — 미디어 파일을 바이너리에 임베딩하지 않고 Resources/로 분리, `res://` 커스텀 프로토콜로 서빙
 
 ## 요구사항
 
@@ -49,6 +51,8 @@ npx tsx src/cli/index.ts ./path/to/Kakaotalk_Chat_상대방이름_YYYYMMDD_HHMMS
 | `--output, -o <경로>` | 출력 디렉토리 | 현재 디렉토리 |
 | `--name, -n <이름>` | 앱 이름 | `{상대방} Kakao History` |
 | `--icon, -i <경로>` | 앱 아이콘 PNG (자동 crop-to-fill) | 기본 아이콘 |
+| `--me <이름>` | "나"의 이름 (자동 감지 실패 시 지정) | 자동 감지 |
+| `--chunk-size <숫자>` | 청크 크기 (클수록 스크롤 부드러움) | `15000` |
 
 ```bash
 # 커스텀 이름 + 아이콘
