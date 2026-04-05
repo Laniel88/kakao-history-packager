@@ -2,11 +2,7 @@
   import type { Message } from '../stores/chat';
   import { settings } from '../stores/settings';
   import { searchQuery, searchResultIndex } from '../stores/search';
-  import { mediaPopup } from '../stores/ui';
-
-  function openMedia(src: string, type: 'image' | 'video') {
-    mediaPopup.set({ src, type });
-  }
+  import { openMediaViewer } from '../lib/tauri';
 
   let {
     message,
@@ -69,7 +65,7 @@
   {#if message.contentType === 'photo'}
     {#if message.mediaFilename}
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMedia(`assets/${message.mediaFilename}`, 'image')} onkeydown={() => {}} />
+      <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMediaViewer(message.mediaFilename!)} onkeydown={() => {}} />
     {:else}
       <div class="image-placeholder">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
@@ -80,7 +76,7 @@
     {/if}
   {:else if message.contentType === 'video'}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div class="video-thumbnail" onclick={() => message.mediaFilename && openMedia(`assets/${message.mediaFilename}`, 'video')} onkeydown={() => {}}>
+    <div class="video-thumbnail" onclick={() => message.mediaFilename && openMediaViewer(message.mediaFilename)} onkeydown={() => {}}>
       <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
         <path d="M8 5v14l11-7z"/>
       </svg>

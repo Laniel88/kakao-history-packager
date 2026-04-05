@@ -1,8 +1,7 @@
 <script lang="ts">
   import { chatData } from '../stores/chat';
-  import { mediaPopup } from '../stores/ui';
   import type { AssetEntry } from '../stores/chat';
-  import MediaPopup from './MediaPopup.svelte';
+  import { openMediaViewer } from '../lib/tauri';
 
   let activeTab: 'media' | 'files' | 'links' = $state('media');
   const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
@@ -45,9 +44,6 @@
     return links.reverse();
   });
 
-  function openMedia(filename: string, type: 'image' | 'video') {
-    mediaPopup.set({ src: `assets/${filename}`, type });
-  }
 </script>
 
 <div class="drawer-window">
@@ -77,7 +73,7 @@
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
                 class="media-thumb"
-                onclick={() => openMedia(item.filename, item.type as 'image' | 'video')}
+                onclick={() => openMediaViewer(item.filename)}
                 onkeydown={() => {}}
               >
                 {#if item.type === 'image'}
@@ -131,8 +127,6 @@
     {/if}
   </div>
 </div>
-
-<MediaPopup />
 
 <style>
   .drawer-window {

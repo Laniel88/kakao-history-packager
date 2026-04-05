@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS: UserSettings = { otherName: '', otherProfilePhoto: null 
 
 export const settings = writable<UserSettings>(DEFAULT_SETTINGS);
 let initialized = false;
+let unsubscribe: (() => void) | null = null;
 
 export async function initSettings() {
   const data = get(chatData);
@@ -30,8 +31,9 @@ export async function initSettings() {
 
   initialized = true;
 
-  // Auto-save on changes
-  settings.subscribe(value => {
+  // Auto-save on changes (prevent duplicate subscriptions)
+  if (unsubscribe) unsubscribe();
+  unsubscribe = settings.subscribe(value => {
     if (!initialized) return;
     saveSettings(chatName, value);
   });

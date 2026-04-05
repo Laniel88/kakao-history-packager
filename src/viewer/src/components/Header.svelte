@@ -88,8 +88,8 @@
     <div class="header-info">
       <span class="chat-name">{displayName}</span>
       <div class="member-count">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#999" stroke="none"/>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#999" stroke="none">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
         </svg>
         <span>2</span>
       </div>
@@ -214,9 +214,9 @@
   .member-count {
     display: flex;
     align-items: center;
-    gap: 3px;
-    font-size: 11px;
-    color: #999;
+    gap: 2px;
+    font-size: 12px;
+    color: #777;
   }
 
   .header-right {

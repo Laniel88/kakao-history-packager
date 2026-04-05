@@ -6,8 +6,8 @@
   import ChatView from './components/ChatView.svelte';
   import InputArea from './components/InputArea.svelte';
   import SearchBar from './components/SearchBar.svelte';
-  import MediaPopup from './components/MediaPopup.svelte';
   import DrawerWindow from './components/DrawerWindow.svelte';
+  import MediaViewerWindow from './components/MediaViewerWindow.svelte';
   import SettingsModal from './components/SettingsModal.svelte';
 
   const viewParam = new URLSearchParams(window.location.search).get('view');
@@ -24,12 +24,19 @@
 </script>
 
 {#if viewParam === 'drawer'}
-  <!-- Drawer standalone window -->
   <div class="drawer-standalone">
     {#if $isLoading}
       <div class="loading">로딩 중...</div>
     {:else if $chatData}
       <DrawerWindow />
+    {/if}
+  </div>
+{:else if viewParam === 'media'}
+  <div class="media-standalone">
+    {#if $isLoading}
+      <div class="loading">로딩 중...</div>
+    {:else if $chatData}
+      <MediaViewerWindow />
     {/if}
   </div>
 {:else}
@@ -42,7 +49,6 @@
       <SearchBar items={$chatData.items} onNavigate={handleSearchNavigate} />
       <ChatView bind:this={chatView} items={$chatData.items} />
       <InputArea />
-      <MediaPopup />
       <SettingsModal />
     {:else}
       <div class="loading">데이터를 불러올 수 없습니다.</div>
@@ -63,6 +69,11 @@
     height: 100%;
     width: 100%;
     background: #ffffff;
+  }
+
+  .media-standalone {
+    height: 100%;
+    width: 100%;
   }
 
   .loading {
