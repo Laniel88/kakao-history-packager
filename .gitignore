@@ -9,3 +9,4 @@ src-tauri/target/
 .기획/
 kakao-packager.lock
 *.iconset/
+.build-icons/
