@@ -11,3 +11,4 @@ kakao-packager.lock
 *.iconset/
 .build-icons/
 .build-resources/
+.build-stamp

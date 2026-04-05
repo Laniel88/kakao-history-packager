@@ -135,6 +135,11 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
 
   try {
     // 1. Build viewer with Vite (only HTML/JS/CSS, no data)
+    // Clean dev-mode data from public/ so Vite doesn't embed it in dist
+    const publicData = path.join(viewerDir, 'public/data');
+    const publicAssets = path.join(viewerDir, 'public/assets');
+    fs.rmSync(publicData, { recursive: true, force: true });
+    fs.rmSync(publicAssets, { recursive: true, force: true });
     console.log('🔨 뷰어 빌드 중...');
     execSync('npx vite build', { cwd: viewerDir, stdio: 'pipe' });
     console.log('  ✓ Vite 빌드 완료');
@@ -167,6 +172,8 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
 
     // 4. Build with Tauri — resources externalized via bundle.resources
     console.log('🍎 .app 빌드 중 (Tauri)...');
+    // Write build stamp to force Cargo recompile (build.rs tracks this file)
+    fs.writeFileSync(path.join(tauriDir, '.build-stamp'), Date.now().toString(), 'utf-8');
     const configOverride = JSON.stringify({
       productName: 'KakaoChat',
       bundle: {
