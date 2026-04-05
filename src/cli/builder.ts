@@ -59,7 +59,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
   const tauriConf = JSON.parse(fs.readFileSync(tauriConfPath, 'utf-8'));
   const originalConf = JSON.stringify(tauriConf); // save for restore
   tauriConf.productName = 'KakaoChat'; // ASCII for build
-  tauriConf.app.windows[0].title = chatName;
+  tauriConf.app.windows[0].title = '';
   fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2), 'utf-8');
 
   // 5. Build with Tauri
