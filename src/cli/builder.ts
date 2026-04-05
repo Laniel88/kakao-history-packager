@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import sharp from 'sharp';
 import type { ChatData, ChatItem, ChunkMetadata, ItemTypeHint, LinkEntry } from './types.js';
 
-const DEFAULT_CHUNK_SIZE = 5000;
+const DEFAULT_CHUNK_SIZE = 15000;
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
 
 function getTypeHint(item: ChatItem): ItemTypeHint {
