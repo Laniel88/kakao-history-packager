@@ -35,6 +35,24 @@ function releaseLock(projectRoot: string): void {
   fs.rmSync(lockPath, { force: true });
 }
 
+function generateIcns(pngPath: string, icnsPath: string): void {
+  const iconsetDir = path.join(path.dirname(pngPath), '.tmp-iconset');
+  fs.mkdirSync(iconsetDir, { recursive: true });
+  const sizes = [16, 32, 64, 128, 256, 512, 1024];
+  const names: [number, string][] = [
+    [16, 'icon_16x16.png'], [32, 'icon_16x16@2x.png'],
+    [32, 'icon_32x32.png'], [64, 'icon_32x32@2x.png'],
+    [128, 'icon_128x128.png'], [256, 'icon_128x128@2x.png'],
+    [256, 'icon_256x256.png'], [512, 'icon_256x256@2x.png'],
+    [512, 'icon_512x512.png'], [1024, 'icon_512x512@2x.png'],
+  ];
+  for (const [size, name] of names) {
+    execSync(`sips -z ${size} ${size} "${pngPath}" --out "${path.join(iconsetDir, name)}"`, { stdio: 'pipe' });
+  }
+  execSync(`iconutil -c icns "${iconsetDir}" -o "${icnsPath}"`, { stdio: 'pipe' });
+  fs.rmSync(iconsetDir, { recursive: true, force: true });
+}
+
 export async function buildViewer(options: BuildOptions): Promise<string> {
   const { chatData, inputFolder, assetFiles, outputDir, appName, iconPath } = options;
   const chatName = chatData.metadata.chatName;
@@ -67,11 +85,31 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     fs.writeFileSync(path.join(viteDist, 'chat-data.json'), JSON.stringify(chatData), 'utf-8');
     console.log(`  ✓ ${assetFiles.length}개 에셋 + 채팅 데이터 주입 완료`);
 
-    // 3. Copy custom icon if provided
-    const tauriIconPath = path.join(tauriDir, 'icons/icon.png');
-    const originalIcon = fs.readFileSync(tauriIconPath);
+    // 3. Process and apply custom icon if provided
+    const tauriIconPng = path.join(tauriDir, 'icons/icon.png');
+    const tauriIconIcns = path.join(tauriDir, 'icons/icon.icns');
+    const originalPng = fs.readFileSync(tauriIconPng);
+    const originalIcns = fs.existsSync(tauriIconIcns) ? fs.readFileSync(tauriIconIcns) : null;
+
     if (iconPath) {
-      fs.copyFileSync(iconPath, tauriIconPath);
+      // Crop-to-fill 1024x1024 using sips (macOS built-in)
+      const tmpIcon = path.join(tauriDir, 'icons/.icon-tmp.png');
+      fs.copyFileSync(iconPath, tmpIcon);
+      const info = execSync(`sips -g pixelWidth -g pixelHeight "${tmpIcon}"`, { encoding: 'utf-8' });
+      const w = parseInt(info.match(/pixelWidth:\s*(\d+)/)?.[1] ?? '0');
+      const h = parseInt(info.match(/pixelHeight:\s*(\d+)/)?.[1] ?? '0');
+      if (w > 0 && h > 0) {
+        if (w < h) {
+          execSync(`sips --resampleWidth 1024 "${tmpIcon}"`, { stdio: 'pipe' });
+        } else {
+          execSync(`sips --resampleHeight 1024 "${tmpIcon}"`, { stdio: 'pipe' });
+        }
+        execSync(`sips --cropToHeightWidth 1024 1024 "${tmpIcon}"`, { stdio: 'pipe' });
+      }
+      fs.renameSync(tmpIcon, tauriIconPng);
+
+      // Generate .icns from processed PNG
+      generateIcns(tauriIconPng, tauriIconIcns);
       console.log('  ✓ 커스텀 아이콘 적용');
     }
 
@@ -89,9 +127,10 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
       env: { ...process.env },
     });
 
-    // Restore original icon
+    // Restore original icons
     if (iconPath) {
-      fs.writeFileSync(tauriIconPath, originalIcon);
+      fs.writeFileSync(tauriIconPng, originalPng);
+      if (originalIcns) fs.writeFileSync(tauriIconIcns, originalIcns);
     }
 
     // 4. Copy .app to output
