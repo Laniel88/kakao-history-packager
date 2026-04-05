@@ -114,7 +114,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     });
 
     try {
-      execSync(`npx tauri build --target aarch64-apple-darwin --config '${configOverride}'`, {
+      execSync(`npx tauri build --target aarch64-apple-darwin --bundles app --config '${configOverride}'`, {
         cwd: projectRoot,
         stdio: 'inherit',
       });
