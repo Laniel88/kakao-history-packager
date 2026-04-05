@@ -4,8 +4,8 @@
   --bubble-other: #ffffff;
   --bubble-mine-text: #000000;
   --bubble-other-text: #000000;
-  --date-separator-bg: rgba(0, 0, 0, 0.45);
-  --date-separator-text: #ffffff;
+  --date-separator-bg: rgba(0, 0, 0, 0.08);
+  --date-separator-text: #888888;
   --header-bg: #ffffff;
   --header-border: #e0e0e0;
   --time-text: #7b7b7b;
