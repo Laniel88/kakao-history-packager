@@ -20,7 +20,10 @@
 
   // Height cache: item id -> measured height
   const heightCache = new Map<number, number>();
-  const DEFAULT_HEIGHT = 52;
+
+  // Prefix-sum array: prefixHeights[i] = sum of heights[0..i-1]
+  // prefixHeights[0] = 0, prefixHeights[n] = total height
+  let prefixHeights = new Float64Array(1);
 
   function estimateHeight(item: ChatItem): number {
     const cached = heightCache.get(item.id);
@@ -34,36 +37,40 @@
     return Math.max(42, 30 + lines * 20);
   }
 
+  function buildPrefixSums() {
+    const n = items.length;
+    prefixHeights = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) {
+      prefixHeights[i + 1] = prefixHeights[i] + estimateHeight(items[i]);
+    }
+  }
+
+  function rebuildPrefixFrom(index: number) {
+    for (let i = index; i < items.length; i++) {
+      prefixHeights[i + 1] = prefixHeights[i] + estimateHeight(items[i]);
+    }
+  }
+
+  // O(log n) binary search for first visible item
+  function findStartIndex(scrollTop: number): number {
+    let lo = 0;
+    let hi = items.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (prefixHeights[mid + 1] <= scrollTop) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
+  }
+
   // State
   let visibleStart = $state(0);
   let visibleEnd = $state(0);
   let topSpacerHeight = $state(0);
   let bottomSpacerHeight = $state(0);
-  let hasScrolledToBottom = $state(false);
-
-  function getTotalHeight(): number {
-    let total = 0;
-    for (let i = 0; i < items.length; i++) {
-      total += estimateHeight(items[i]);
-    }
-    return total;
-  }
-
-  function getHeightBefore(index: number): number {
-    let total = 0;
-    for (let i = 0; i < index; i++) {
-      total += estimateHeight(items[i]);
-    }
-    return total;
-  }
-
-  function getHeightRange(start: number, end: number): number {
-    let total = 0;
-    for (let i = start; i < end; i++) {
-      total += estimateHeight(items[i]);
-    }
-    return total;
-  }
 
   function updateVisibleRange() {
     if (!container || items.length === 0) return;
@@ -71,25 +78,14 @@
     const scrollTop = container.scrollTop;
     const viewportHeight = container.clientHeight;
 
-    // Find first visible item
-    let cumHeight = 0;
-    let startIdx = 0;
-    for (let i = 0; i < items.length; i++) {
-      const h = estimateHeight(items[i]);
-      if (cumHeight + h > scrollTop) {
-        startIdx = i;
-        break;
-      }
-      cumHeight += h;
-    }
+    // Binary search for first visible item — O(log n)
+    const startIdx = findStartIndex(scrollTop);
 
-    // Find last visible item
+    // Find last visible item — O(visible count), typically ~15-30
     let endIdx = startIdx;
-    let visibleHeight = cumHeight - scrollTop; // negative offset of first item
-    for (let i = startIdx; i < items.length; i++) {
-      endIdx = i + 1;
-      visibleHeight += estimateHeight(items[i]);
-      if (visibleHeight >= viewportHeight) break;
+    const bottomEdge = scrollTop + viewportHeight;
+    while (endIdx < items.length && prefixHeights[endIdx] < bottomEdge) {
+      endIdx++;
     }
 
     // Apply overscan
@@ -98,14 +94,14 @@
 
     visibleStart = newStart;
     visibleEnd = newEnd;
-    topSpacerHeight = getHeightBefore(newStart);
-    bottomSpacerHeight = getHeightRange(newEnd, items.length);
+    topSpacerHeight = prefixHeights[newStart];                                        // O(1)
+    bottomSpacerHeight = prefixHeights[items.length] - prefixHeights[newEnd];         // O(1)
   }
 
   function measureRenderedItems() {
     if (!container) return;
     const rendered = container.querySelectorAll('[data-item-id]');
-    let changed = false;
+    let minChangedIndex = items.length;
 
     rendered.forEach((el) => {
       const id = parseInt(el.getAttribute('data-item-id')!);
@@ -113,14 +109,18 @@
       const cached = heightCache.get(id);
       if (cached === undefined || Math.abs(cached - height) > 1) {
         heightCache.set(id, height);
-        changed = true;
+        // Find the index for this id to know where to rebuild from
+        const idx = items.findIndex(item => item.id === id);
+        if (idx >= 0 && idx < minChangedIndex) {
+          minChangedIndex = idx;
+        }
       }
     });
 
-    if (changed) {
-      // Recalculate spacers with updated heights
-      topSpacerHeight = getHeightBefore(visibleStart);
-      bottomSpacerHeight = getHeightRange(visibleEnd, items.length);
+    if (minChangedIndex < items.length) {
+      rebuildPrefixFrom(minChangedIndex);
+      topSpacerHeight = prefixHeights[visibleStart];
+      bottomSpacerHeight = prefixHeights[items.length] - prefixHeights[visibleEnd];
     }
   }
 
@@ -141,9 +141,9 @@
 
   export function scrollToItem(index: number) {
     if (!container || index < 0 || index >= items.length) return;
-    const targetY = getHeightBefore(index);
+    const targetY = prefixHeights[index];
     const viewportHeight = container.clientHeight;
-    const itemHeight = estimateHeight(items[index]);
+    const itemHeight = prefixHeights[index + 1] - prefixHeights[index];
     container.scrollTop = Math.max(0, targetY - viewportHeight / 2 + itemHeight / 2);
     requestAnimationFrame(() => {
       updateVisibleRange();
@@ -153,31 +153,29 @@
 
   $effect(() => {
     if (items.length > 0) {
+      buildPrefixSums();
       updateVisibleRange();
     }
   });
 
   onMount(async () => {
-    updateVisibleRange();
+    if (items.length > 0) {
+      buildPrefixSums();
+      updateVisibleRange();
+    }
     await tick();
 
-    // Measure first batch
     measureRenderedItems();
     updateVisibleRange();
 
-    // Scroll to bottom
     await tick();
     if (container) {
       container.scrollTop = container.scrollHeight;
-      hasScrolledToBottom = true;
       updateVisibleRange();
       requestAnimationFrame(measureRenderedItems);
     }
 
-    // Handle resize
-    const ro = new ResizeObserver(() => {
-      updateVisibleRange();
-    });
+    const ro = new ResizeObserver(() => updateVisibleRange());
     ro.observe(container);
     return () => ro.disconnect();
   });
