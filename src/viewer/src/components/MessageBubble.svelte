@@ -11,6 +11,7 @@
   let {
     message,
     showProfile = false,
+    showTail = false,
     showTime = true,
   }: {
     message: Message;
@@ -85,7 +86,7 @@
         <span class="sender-name">{message.sender}</span>
       {/if}
       <div class="bubble-row">
-        <div class="bubble other-bubble">
+        <div class="bubble other-bubble" class:has-tail={showTail}>
           {#if message.contentType === 'photo'}
             {#if message.mediaFilename}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -122,7 +123,7 @@
         {#if showTime}
           <span class="time">{timeStr}</span>
         {/if}
-        <div class="bubble mine-bubble">
+        <div class="bubble mine-bubble" class:has-tail={showTail}>
           {#if message.contentType === 'photo'}
             {#if message.mediaFilename}
               <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -222,7 +223,7 @@
 
   .bubble {
     padding: 8px 12px;
-    border-radius: 12px;
+    border-radius: 6px;
     line-height: 1.5;
     word-break: break-word;
     white-space: pre-wrap;
@@ -233,13 +234,41 @@
   .other-bubble {
     background: var(--bubble-other);
     color: var(--bubble-other-text);
-    border-top-left-radius: 2px;
+  }
+
+  .other-bubble.has-tail {
+    border-top-left-radius: 0;
+  }
+
+  .other-bubble.has-tail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -6px;
+    width: 0;
+    height: 0;
+    border-top: 6px solid var(--bubble-other);
+    border-left: 6px solid transparent;
   }
 
   .mine-bubble {
     background: var(--bubble-mine);
     color: var(--bubble-mine-text);
-    border-top-right-radius: 2px;
+  }
+
+  .mine-bubble.has-tail {
+    border-top-right-radius: 0;
+  }
+
+  .mine-bubble.has-tail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -6px;
+    width: 0;
+    height: 0;
+    border-top: 6px solid var(--bubble-mine);
+    border-right: 6px solid transparent;
   }
 
   .time {

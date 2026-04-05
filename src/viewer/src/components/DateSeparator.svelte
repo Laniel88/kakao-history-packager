@@ -22,12 +22,13 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 12px;
+    padding: 6px 14px;
     background: var(--date-separator-bg);
-    border-radius: 14px;
-    font-size: 11px;
+    border-radius: 16px;
+    font-size: 12px;
     color: var(--date-separator-text);
     white-space: nowrap;
+    font-weight: 400;
   }
 
   .calendar-icon {

@@ -126,8 +126,12 @@
     height: 58px;
     min-height: 58px;
     padding: 0 12px;
-    background: var(--header-bg);
-    border-bottom: 1px solid var(--header-border);
+    /* macOS traffic light 영역: Pake hide-title-bar에서 28px 상단 여백 */
+    padding-top: 28px;
+    height: 86px;
+    min-height: 86px;
+    background: var(--chat-bg);
+    -webkit-app-region: drag;
   }
 
   .header-left {
@@ -184,6 +188,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    -webkit-app-region: no-drag;
   }
 
   .header-icon {

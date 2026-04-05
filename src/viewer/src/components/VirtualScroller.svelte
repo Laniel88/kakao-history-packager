@@ -198,6 +198,7 @@
     </div>
   {/each}
   <div class="spacer" style="height:{bottomSpacerHeight}px"></div>
+  <div class="bottom-padding"></div>
 </div>
 
 <style>
@@ -210,5 +211,9 @@
 
   .spacer {
     pointer-events: none;
+  }
+
+  .bottom-padding {
+    height: 16px;
   }
 </style>

@@ -17,6 +17,15 @@
     return prev.sender !== item.sender;
   }
 
+  // Show tail on first message in a sender group (both mine and other's)
+  function shouldShowTail(item: ChatItem, index: number): boolean {
+    if (item.type !== 'message') return false;
+    if (index === 0) return true;
+    const prev = items[index - 1];
+    if (prev.type !== 'message') return true;
+    return prev.sender !== item.sender;
+  }
+
   // Show time on last message before sender change or date separator
   function shouldShowTime(item: ChatItem, index: number): boolean {
     if (item.type !== 'message') return false;
@@ -43,6 +52,7 @@
         <MessageBubble
           message={item}
           showProfile={shouldShowProfile(item, index)}
+          showTail={shouldShowTail(item, index)}
           showTime={shouldShowTime(item, index)}
         />
       </div>

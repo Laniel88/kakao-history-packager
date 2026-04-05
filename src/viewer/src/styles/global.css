@@ -4,11 +4,11 @@
   --bubble-other: #ffffff;
   --bubble-mine-text: #000000;
   --bubble-other-text: #000000;
-  --date-separator-bg: #a0b4c4;
+  --date-separator-bg: rgba(0, 0, 0, 0.45);
   --date-separator-text: #ffffff;
   --header-bg: #ffffff;
   --header-border: #e0e0e0;
-  --time-text: #999999;
+  --time-text: #7b7b7b;
   --text-primary: #111111;
   --sender-name: #888888;
   --input-area-bg: #ffffff;
