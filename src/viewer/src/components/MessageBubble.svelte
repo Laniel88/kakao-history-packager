@@ -256,6 +256,8 @@
 
   .message-text {
     font-size: 13px;
+    user-select: text;
+    -webkit-user-select: text;
   }
 
   .emoticon-text {

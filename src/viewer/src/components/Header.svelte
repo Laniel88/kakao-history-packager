@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { ChatMetadata } from '../stores/chat';
-  import { isSearchOpen, isDrawerOpen, isSettingsOpen } from '../stores/ui';
+  import { isSearchOpen, isSettingsOpen } from '../stores/ui';
   import { settings } from '../stores/settings';
 
   let { metadata }: { metadata: ChatMetadata } = $props();
@@ -15,9 +15,28 @@
     showHamburgerMenu = !showHamburgerMenu;
   }
 
-  function openDrawer() {
+  async function openDrawer() {
     showHamburgerMenu = false;
-    isDrawerOpen.set(true);
+    try {
+      const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+      const existing = await WebviewWindow.getByLabel('drawer');
+      if (existing) {
+        await existing.setFocus();
+        return;
+      }
+      new WebviewWindow('drawer', {
+        url: 'index.html?view=drawer',
+        title: '서랍',
+        width: 360,
+        height: 600,
+        minWidth: 280,
+        minHeight: 400,
+        decorations: true,
+      });
+    } catch {
+      // Fallback for web dev: open in new tab
+      window.open('?view=drawer', '_blank', 'width=360,height=600');
+    }
   }
 
   function openSettings() {
@@ -47,13 +66,13 @@
   const profilePhoto = $derived($settings.otherProfilePhoto);
 </script>
 
-<header class="header">
-  <div class="header-titlebar">
+<header class="header" data-tauri-drag-region>
+  <div class="header-titlebar" data-tauri-drag-region>
     <div class="opacity-slider">
       <input type="range" min="0" max="100" value="100" disabled />
     </div>
   </div>
-  <div class="header-main">
+  <div class="header-main" data-tauri-drag-region>
   <div class="header-left">
     <div class="profile-photo">
       {#if profilePhoto}
@@ -130,7 +149,6 @@
     display: flex;
     flex-direction: column;
     background: var(--chat-bg);
-    -webkit-app-region: drag;
   }
 
   .header-titlebar {
@@ -205,13 +223,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    -webkit-app-region: no-drag;
   }
 
   .opacity-slider {
     display: flex;
     align-items: center;
-    -webkit-app-region: no-drag;
   }
 
   .opacity-slider input[type="range"] {

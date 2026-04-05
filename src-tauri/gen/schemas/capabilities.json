@@ -1,1 +1,1 @@
-{}
+{"default":{"identifier":"default","description":"Default capabilities","local":true,"windows":["*"],"permissions":["core:default","core:window:default","core:window:allow-create","core:window:allow-close","core:window:allow-set-focus","core:window:allow-start-dragging","core:webview:default","core:webview:allow-create-webview-window","opener:default"]}}

@@ -42,7 +42,7 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  user-select: text;
+  user-select: none;
 }
 
 /* Scrollbar styling (KakaoTalk-like thin scrollbar) */
