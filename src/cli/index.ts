@@ -8,16 +8,21 @@ import { matchMediaToMessages, buildAssetManifest } from './media-matcher.js';
 import { buildViewer } from './builder.js';
 import type { ChatData } from './types.js';
 
-// Parse folder name to extract chat name
-// Pattern: Kakaotalk_Chat_{NAME}_{DATE}_{TIME}
 const FOLDER_NAME_RE = /^Kakaotalk_Chat_(.+?)_\d{8}_\d{6}$/i;
 
 function extractChatName(folderPath: string): string {
   const folderName = path.basename(folderPath);
   const match = folderName.match(FOLDER_NAME_RE);
   if (match) return match[1];
-  // Fallback: use folder name as-is
   return folderName;
+}
+
+function getArgValue(args: string[], ...flags: string[]): string | undefined {
+  for (const flag of flags) {
+    const idx = args.indexOf(flag);
+    if (idx !== -1 && args[idx + 1]) return args[idx + 1];
+  }
+  return undefined;
 }
 
 async function main() {
@@ -25,24 +30,35 @@ async function main() {
 
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(`
-카카오톡 대화 내보내기 → 뷰어 빌드
+카카오톡 대화 내보내기 → 뷰어 앱 빌드
 
 사용법:
   kakao-history-packager <내보내기 폴더 경로>
 
 옵션:
-  --output, -o <경로>   출력 디렉토리 (기본: 현재 디렉토리)
-  --web-only            .app 빌드 없이 웹 폴더만 출력
-  --help, -h            도움말
+  --output, -o <경로>     출력 디렉토리 (기본: 현재 디렉토리)
+  --name, -n <이름>       앱 이름 (기본: "{상대방} Kakao History")
+  --icon, -i <경로>       앱 아이콘 PNG 경로 (RGBA, 512x512 권장)
+  --help, -h              도움말
 `);
     process.exit(0);
   }
 
   const inputFolder = path.resolve(args[0]);
-  const outputIdx = args.indexOf('--output') !== -1 ? args.indexOf('--output') : args.indexOf('-o');
-  const outputDir = outputIdx !== -1 && args[outputIdx + 1]
-    ? path.resolve(args[outputIdx + 1])
+  const outputDir = getArgValue(args, '--output', '-o')
+    ? path.resolve(getArgValue(args, '--output', '-o')!)
     : process.cwd();
+  const customName = getArgValue(args, '--name', '-n');
+  const customIcon = getArgValue(args, '--icon', '-i');
+
+  // Validate custom icon
+  if (customIcon) {
+    const iconPath = path.resolve(customIcon);
+    if (!fs.existsSync(iconPath)) {
+      console.error(`❌ 아이콘 파일을 찾을 수 없습니다: ${iconPath}`);
+      process.exit(1);
+    }
+  }
 
   // 1. Validate input
   console.log('🔍 입력 폴더 검증 중...');
@@ -59,7 +75,6 @@ async function main() {
   const txtContent = fs.readFileSync(path.join(inputFolder, validation.txtFile), 'utf-8');
   const parseResult = parseTxt(txtContent);
 
-  // Check 1:1
   if (parseResult.metadata.participants.length !== 2) {
     console.error(`❌ 1:1 대화만 지원합니다. 참여자 수: ${parseResult.metadata.participants.length}`);
     process.exit(1);
@@ -80,6 +95,8 @@ async function main() {
   console.log(`  ✓ 메시지 ${messages.length}개, 사진 ${photos.length}개 (매칭 ${matched.length}개)`);
 
   // 4. Build
+  const appName = customName ?? `${chatName} Kakao History`;
+
   const chatData: ChatData = {
     metadata: {
       chatName,
@@ -97,6 +114,8 @@ async function main() {
     inputFolder,
     assetFiles: validation.assetFiles,
     outputDir,
+    appName,
+    iconPath: customIcon ? path.resolve(customIcon) : undefined,
   });
 
   console.log(`\n✅ 완료: ${result}`);

@@ -8,6 +8,8 @@ export interface BuildOptions {
   inputFolder: string;
   assetFiles: string[];
   outputDir: string;
+  appName: string;
+  iconPath?: string;
 }
 
 const LOCKFILE = 'kakao-packager.lock';
@@ -34,7 +36,7 @@ function releaseLock(projectRoot: string): void {
 }
 
 export async function buildViewer(options: BuildOptions): Promise<string> {
-  const { chatData, inputFolder, assetFiles, outputDir } = options;
+  const { chatData, inputFolder, assetFiles, outputDir, appName, iconPath } = options;
   const chatName = chatData.metadata.chatName;
 
   const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
@@ -65,8 +67,17 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     fs.writeFileSync(path.join(viteDist, 'chat-data.json'), JSON.stringify(chatData), 'utf-8');
     console.log(`  ✓ ${assetFiles.length}개 에셋 + 채팅 데이터 주입 완료`);
 
-    // 3. Build with Tauri (config override via --config flag, no source modification)
+    // 3. Copy custom icon if provided
+    const tauriIconPath = path.join(tauriDir, 'icons/icon.png');
+    const originalIcon = fs.readFileSync(tauriIconPath);
+    if (iconPath) {
+      fs.copyFileSync(iconPath, tauriIconPath);
+      console.log('  ✓ 커스텀 아이콘 적용');
+    }
+
+    // 4. Build with Tauri (config override via --config flag, no source modification)
     console.log('🍎 .app 빌드 중 (Tauri)...');
+    // productName must be ASCII for Tauri build
     const configOverride = JSON.stringify({
       productName: 'KakaoChat',
       app: { windows: [{ title: '' }] },
@@ -78,6 +89,11 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
       env: { ...process.env },
     });
 
+    // Restore original icon
+    if (iconPath) {
+      fs.writeFileSync(tauriIconPath, originalIcon);
+    }
+
     // 4. Copy .app to output
     const bundleMacosDir = path.join(tauriDir, 'target/aarch64-apple-darwin/release/bundle/macos');
     const appFiles = fs.existsSync(bundleMacosDir)
@@ -86,7 +102,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
 
     if (appFiles.length > 0) {
       const builtApp = path.join(bundleMacosDir, appFiles[0]);
-      const finalPath = path.join(outputDir, `${chatName}.app`);
+      const finalPath = path.join(outputDir, `${appName}.app`);
       fs.rmSync(finalPath, { recursive: true, force: true });
       execSync(`cp -R "${builtApp}" "${finalPath}"`, { stdio: 'pipe' });
 
