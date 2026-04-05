@@ -5,3 +5,4 @@ dist/
 .DS_Store
 src/viewer/public/chat-data.json
 src/viewer/public/assets/
+src-tauri/target/
