@@ -10,7 +10,7 @@
   }
 
   $effect(() => {
-    if (typeof window !== 'undefined') {
+    if ($mediaPopup && typeof window !== 'undefined') {
       window.addEventListener('keydown', handleKeydown);
       return () => window.removeEventListener('keydown', handleKeydown);
     }

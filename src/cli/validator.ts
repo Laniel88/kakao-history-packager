@@ -9,7 +9,6 @@ export interface ValidationResult {
 }
 
 const TXT_PATTERN = /^Talk_.+\.txt$/;
-const HEADER_PATTERN = /^Talk_.+\.txt$/;
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']);
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.avi', '.mkv', '.webm', '.3gp']);
 const IGNORED_FILES = new Set(['.DS_Store', 'Thumbs.db']);

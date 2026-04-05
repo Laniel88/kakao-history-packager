@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import type { ChatItem } from '../stores/chat';
   import { isSearchOpen } from '../stores/ui';
   import {
@@ -24,9 +24,7 @@
 
   function handleFindNext() {
     findNext(items, query);
-    if ($isSearchExhausted && $searchResultCount === 0) {
-      showToastMessage();
-    } else if ($isSearchExhausted) {
+    if ($isSearchExhausted) {
       showToastMessage();
     }
   }
@@ -59,6 +57,8 @@
       showToast = false;
     }, 2000);
   }
+
+  onDestroy(() => clearTimeout(toastTimeout));
 
   // Navigate to result when it changes
   $effect(() => {

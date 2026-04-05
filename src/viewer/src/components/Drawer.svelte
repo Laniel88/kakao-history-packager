@@ -16,7 +16,7 @@
       .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
   );
 
-  const mediaByMonth = $derived(() => {
+  const mediaByMonth = $derived.by(() => {
     const groups = new Map<string, AssetEntry[]>();
     for (const item of mediaItems) {
       if (!item.timestamp) continue;
@@ -35,7 +35,7 @@
   );
 
   // Links extracted from messages
-  const linkItems = $derived(() => {
+  const linkItems = $derived.by(() => {
     const items = $chatData?.items ?? [];
     const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
     const links: { url: string; sender: string; timestamp: number }[] = [];
@@ -87,14 +87,14 @@
       <span class="tab-count">
         {#if activeTab === 'media'}{mediaItems.length}개
         {:else if activeTab === 'files'}{fileItems.length}개
-        {:else}{linkItems().length}개
+        {:else}{linkItems.length}개
         {/if}
       </span>
     </div>
 
     <div class="drawer-content">
       {#if activeTab === 'media'}
-        {#each mediaByMonth() as [month, items]}
+        {#each mediaByMonth as [month, items]}
           <div class="month-group">
             <div class="month-label">{month}</div>
             <div class="media-grid">
@@ -138,10 +138,10 @@
         {/if}
 
       {:else}
-        {#if linkItems().length === 0}
+        {#if linkItems.length === 0}
           <div class="empty">링크가 없습니다</div>
         {:else}
-          {#each linkItems() as link}
+          {#each linkItems as link}
             <div class="link-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#999">
                 <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>

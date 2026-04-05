@@ -124,9 +124,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
 
       if (appName) {
         const finalPath = path.join(outputDir, `${chatName}.app`);
-        if (fs.existsSync(finalPath)) {
-          fs.rmSync(finalPath, { recursive: true });
-        }
+        fs.rmSync(finalPath, { recursive: true, force: true });
         // Copy .app from mounted DMG
         execSync(`cp -R "${path.join(mountPoint, appName)}" "${finalPath}"`, { stdio: 'pipe' });
 
@@ -149,9 +147,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     // Fallback: output the dist folder as-is
     console.log('  ⚠ Pake 빌드 실패. 웹 폴더로 출력합니다.');
     const fallbackDir = path.join(outputDir, chatName);
-    if (fs.existsSync(fallbackDir)) {
-      fs.rmSync(fallbackDir, { recursive: true });
-    }
+    fs.rmSync(fallbackDir, { recursive: true, force: true });
     fs.renameSync(distDir, fallbackDir);
 
     // Cleanup tmp

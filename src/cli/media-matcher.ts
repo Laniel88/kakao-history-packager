@@ -4,7 +4,7 @@ import { categorizeAssetFile } from './validator.js';
 // Filename pattern: YYYYMMDD_HHmmss_N.ext
 const TIMESTAMP_FILENAME_RE = /^(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_(\d+)\..+$/;
 
-function parseFilenameTimestamp(filename: string): { minuteKey: string; fullKey: string; seq: number } | null {
+function parseFilenameTimestamp(filename: string): { minuteKey: string; fullKey: string; seq: number; timestamp: number } | null {
   const match = filename.match(TIMESTAMP_FILENAME_RE);
   if (!match) return null;
   const [, year, month, day, hour, minute, second, seq] = match;
@@ -12,6 +12,7 @@ function parseFilenameTimestamp(filename: string): { minuteKey: string; fullKey:
     minuteKey: `${year}${month}${day}_${hour}${minute}`,
     fullKey: `${year}${month}${day}_${hour}${minute}${second}`,
     seq: parseInt(seq),
+    timestamp: new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second)).getTime(),
   };
 }
 
@@ -92,11 +93,7 @@ export function buildAssetManifest(assetFiles: string[]): AssetEntry[] {
     return {
       filename,
       type: categorizeAssetFile(filename),
-      timestamp: parsed ? (() => {
-        const match = filename.match(TIMESTAMP_FILENAME_RE)!;
-        const [, y, mo, d, h, mi, s] = match;
-        return new Date(parseInt(y), parseInt(mo) - 1, parseInt(d), parseInt(h), parseInt(mi), parseInt(s)).getTime();
-      })() : null,
+      timestamp: parsed ? parsed.timestamp : null,
     };
   });
 }

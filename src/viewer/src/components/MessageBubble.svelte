@@ -16,12 +16,13 @@
   }: {
     message: Message;
     showProfile?: boolean;
+    showTail?: boolean;
     showTime?: boolean;
   } = $props();
 
   const profilePhoto = $derived($settings.otherProfilePhoto);
 
-  const isActiveResult = $derived($searchResultIndex >= 0 && message.id === ($searchResultIndex >= 0 ? message.id : -1));
+  const isActiveResult = $derived($searchResultIndex === message.id);
 
   function formatTime(timestamp: number): string {
     const d = new Date(timestamp);
@@ -64,6 +65,33 @@
   const isMine = $derived(message.isMyMessage);
 </script>
 
+{#snippet bubbleContent()}
+  {#if message.contentType === 'photo'}
+    {#if message.mediaFilename}
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMedia(`assets/${message.mediaFilename}`, 'image')} onkeydown={() => {}} />
+    {:else}
+      <div class="image-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
+          <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+        </svg>
+        <span>사진</span>
+      </div>
+    {/if}
+  {:else if message.contentType === 'video'}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="video-thumbnail" onclick={() => message.mediaFilename && openMedia(`assets/${message.mediaFilename}`, 'video')} onkeydown={() => {}}>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    </div>
+  {:else if message.contentType === 'emoticon'}
+    <span class="emoticon-text">이모티콘</span>
+  {:else}
+    <span class="message-text">{#if textParts}{#each textParts as part}{#if part.highlight}<mark class="highlight">{part.text}</mark>{:else}{part.text}{/if}{/each}{:else}{message.text}{/if}</span>
+  {/if}
+{/snippet}
+
 <div class="message-row" class:mine={isMine} class:other={!isMine}>
   {#if !isMine}
     <div class="avatar-area">
@@ -87,30 +115,7 @@
       {/if}
       <div class="bubble-row">
         <div class="bubble other-bubble" class:has-tail={showTail}>
-          {#if message.contentType === 'photo'}
-            {#if message.mediaFilename}
-              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-              <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMedia(`assets/${message.mediaFilename}`, 'image')} onkeydown={() => {}} />
-            {:else}
-              <div class="image-placeholder">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
-                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
-                <span>사진</span>
-              </div>
-            {/if}
-          {:else if message.contentType === 'video'}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="video-thumbnail" onclick={() => message.mediaFilename && openMedia(`assets/${message.mediaFilename}`, 'video')} onkeydown={() => {}}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-          {:else if message.contentType === 'emoticon'}
-            <span class="emoticon-text">이모티콘</span>
-          {:else}
-            <span class="message-text">{#if textParts}{#each textParts as part}{#if part.highlight}<mark class="highlight">{part.text}</mark>{:else}{part.text}{/if}{/each}{:else}{message.text}{/if}</span>
-          {/if}
+          {@render bubbleContent()}
         </div>
         {#if showTime}
           <span class="time">{timeStr}</span>
@@ -124,30 +129,7 @@
           <span class="time">{timeStr}</span>
         {/if}
         <div class="bubble mine-bubble" class:has-tail={showTail}>
-          {#if message.contentType === 'photo'}
-            {#if message.mediaFilename}
-              <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-              <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMedia(`assets/${message.mediaFilename}`, 'image')} onkeydown={() => {}} />
-            {:else}
-              <div class="image-placeholder">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">
-                  <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
-                <span>사진</span>
-              </div>
-            {/if}
-          {:else if message.contentType === 'video'}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="video-thumbnail" onclick={() => message.mediaFilename && openMedia(`assets/${message.mediaFilename}`, 'video')} onkeydown={() => {}}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-          {:else if message.contentType === 'emoticon'}
-            <span class="emoticon-text">이모티콘</span>
-          {:else}
-            <span class="message-text">{#if textParts}{#each textParts as part}{#if part.highlight}<mark class="highlight">{part.text}</mark>{:else}{part.text}{/if}{/each}{:else}{message.text}{/if}</span>
-          {/if}
+          {@render bubbleContent()}
         </div>
       </div>
     </div>
