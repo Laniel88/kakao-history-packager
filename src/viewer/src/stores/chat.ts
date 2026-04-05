@@ -45,9 +45,15 @@ export const isLoading = writable(true);
 
 export async function loadChatData() {
   try {
-    const response = await fetch('./chat-data.json');
+    const { resolveDataUrl, resolveAssetUrls } = await import('../lib/tauri');
+    const url = await resolveDataUrl('chat-data.json');
+    const response = await fetch(url);
     const data: ChatData = await response.json();
     chatData.set(data);
+
+    // Pre-resolve all asset URLs
+    const assetFilenames = data.assetManifest.map(a => a.filename);
+    await resolveAssetUrls(assetFilenames);
   } catch (e) {
     console.error('Failed to load chat data:', e);
   } finally {

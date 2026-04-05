@@ -2,7 +2,7 @@
   import type { Message } from '../stores/chat';
   import { settings } from '../stores/settings';
   import { searchQuery, searchResultIndex } from '../stores/search';
-  import { openMediaViewer } from '../lib/tauri';
+  import { openMediaViewer, assetUrlMap } from '../lib/tauri';
 
   let {
     message,
@@ -65,7 +65,7 @@
   {#if message.contentType === 'photo'}
     {#if message.mediaFilename}
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-      <img class="chat-image" src="assets/{message.mediaFilename}" alt="사진" loading="lazy" onclick={() => openMediaViewer(message.mediaFilename!)} onkeydown={() => {}} />
+      <img class="chat-image" src={$assetUrlMap.get(message.mediaFilename!) ?? ''} alt="사진" loading="lazy" onclick={() => openMediaViewer(message.mediaFilename!)} onkeydown={() => {}} />
     {:else}
       <div class="image-placeholder">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="#ccc">

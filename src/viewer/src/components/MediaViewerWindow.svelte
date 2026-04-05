@@ -1,6 +1,7 @@
 <script lang="ts">
   import { chatData } from '../stores/chat';
   import type { ChatItem, Message } from '../stores/chat';
+  import { assetUrlMap } from '../lib/tauri';
 
   // Parse URL params: ?view=media&file=FILENAME
   const params = new URLSearchParams(window.location.search);
@@ -59,10 +60,10 @@
   <div class="viewer-content">
     {#if currentMedia}
       {#if currentMedia.contentType === 'photo'}
-        <img src="assets/{currentMedia.mediaFilename}" alt="" class="viewer-image" />
+        <img src={$assetUrlMap.get(currentMedia.mediaFilename!) ?? ''} alt="" class="viewer-image" />
       {:else}
         <!-- svelte-ignore a11y_media_has_caption -->
-        <video src="assets/{currentMedia.mediaFilename}" controls class="viewer-video"></video>
+        <video src={$assetUrlMap.get(currentMedia.mediaFilename!) ?? ''} controls class="viewer-video"></video>
       {/if}
     {:else}
       <div class="empty">미디어를 찾을 수 없습니다</div>

@@ -32,10 +32,11 @@ const chatData: ChatData = {
   assetManifest: buildAssetManifest(validation.assetFiles),
 };
 
-// Write JSON for viewer development
-const outPath = path.resolve('src/viewer/public/chat-data.json');
-fs.writeFileSync(outPath, JSON.stringify(chatData, null, 2), 'utf-8');
-console.log(`Written to ${outPath}`);
+// Write JSON for viewer development (data/ subdirectory for Tauri resource path compat)
+const dataDir = path.resolve('src/viewer/public/data');
+fs.mkdirSync(dataDir, { recursive: true });
+fs.writeFileSync(path.join(dataDir, 'chat-data.json'), JSON.stringify(chatData, null, 2), 'utf-8');
+console.log(`Written to ${dataDir}/chat-data.json`);
 
 // Copy assets to viewer public
 const assetsDir = path.resolve('src/viewer/public/assets');

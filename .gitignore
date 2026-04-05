@@ -3,10 +3,11 @@ dist/
 *.app
 *.dmg
 .DS_Store
-src/viewer/public/chat-data.json
+src/viewer/public/data/
 src/viewer/public/assets/
 src-tauri/target/
 .기획/
 kakao-packager.lock
 *.iconset/
 .build-icons/
+.build-resources/

@@ -78,24 +78,28 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
   const tauriDir = path.join(projectRoot, 'src-tauri');
   const viteDist = path.join(viewerDir, 'dist');
   const buildIconsDir = path.join(tauriDir, BUILD_ICONS_DIR);
+  const buildResourcesDir = path.join(tauriDir, '.build-resources');
 
   acquireLock(projectRoot);
 
   try {
-    // 1. Build viewer with Vite
+    // 1. Build viewer with Vite (only HTML/JS/CSS, no data)
     console.log('🔨 뷰어 빌드 중...');
     execSync('npx vite build', { cwd: viewerDir, stdio: 'pipe' });
     console.log('  ✓ Vite 빌드 완료');
 
-    // 2. Inject data into dist/
-    console.log('📦 에셋 주입 중...');
-    const distAssetsDir = path.join(viteDist, 'assets');
-    fs.mkdirSync(distAssetsDir, { recursive: true });
+    // 2. Stage resources (external files, NOT embedded in binary)
+    console.log('📦 리소스 스테이징 중...');
+    const resAssetsDir = path.join(buildResourcesDir, 'assets');
+    const resDataDir = path.join(buildResourcesDir, 'data');
+    fs.mkdirSync(resAssetsDir, { recursive: true });
+    fs.mkdirSync(resDataDir, { recursive: true });
+
     for (const file of assetFiles) {
-      fs.copyFileSync(path.join(inputFolder, file), path.join(distAssetsDir, file));
+      fs.copyFileSync(path.join(inputFolder, file), path.join(resAssetsDir, file));
     }
-    fs.writeFileSync(path.join(viteDist, 'chat-data.json'), JSON.stringify(chatData), 'utf-8');
-    console.log(`  ✓ ${assetFiles.length}개 에셋 + 채팅 데이터 주입 완료`);
+    fs.writeFileSync(path.join(resDataDir, 'chat-data.json'), JSON.stringify(chatData), 'utf-8');
+    console.log(`  ✓ ${assetFiles.length}개 에셋 + 채팅 데이터 스테이징 완료`);
 
     // 3. Generate .icns into temp dir (source icons untouched)
     const iconSource = iconPath ?? path.join(tauriDir, 'icons/icon.png');
@@ -103,13 +107,17 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     const icnsPath = await generateIcns(iconSource, buildIconsDir);
     console.log('  ✓ .icns 아이콘 생성 완료');
 
-    // 4. Build with Tauri
+    // 4. Build with Tauri — resources externalized via bundle.resources
     console.log('🍎 .app 빌드 중 (Tauri)...');
     const configOverride = JSON.stringify({
       productName: 'KakaoChat',
       app: { windows: [{ title: '' }] },
       bundle: {
         icon: [path.relative(tauriDir, icnsPath)],
+        resources: {
+          '.build-resources/assets/*': 'assets/',
+          '.build-resources/data/*': 'data/',
+        },
       },
     });
 
@@ -151,6 +159,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
   } finally {
     // Always clean up — worktree stays clean
     fs.rmSync(buildIconsDir, { recursive: true, force: true });
+    fs.rmSync(buildResourcesDir, { recursive: true, force: true });
     fs.rmSync(viteDist, { recursive: true, force: true });
     releaseLock(projectRoot);
   }

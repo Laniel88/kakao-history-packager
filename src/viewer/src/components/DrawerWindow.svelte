@@ -1,7 +1,7 @@
 <script lang="ts">
   import { chatData } from '../stores/chat';
   import type { AssetEntry } from '../stores/chat';
-  import { openMediaViewer } from '../lib/tauri';
+  import { openMediaViewer, assetUrlMap } from '../lib/tauri';
 
   let activeTab: 'media' | 'files' | 'links' = $state('media');
   const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
@@ -77,7 +77,7 @@
                 onkeydown={() => {}}
               >
                 {#if item.type === 'image'}
-                  <img src="assets/{item.filename}" alt="" loading="lazy" />
+                  <img src={$assetUrlMap.get(item.filename) ?? ''} alt="" loading="lazy" />
                 {:else}
                   <div class="video-thumb-placeholder">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
