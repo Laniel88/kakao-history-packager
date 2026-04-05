@@ -121,11 +121,16 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
       app: { windows: [{ title: '' }] },
     });
 
-    execSync(`npx tauri build --target aarch64-apple-darwin --config '${configOverride}'`, {
-      cwd: projectRoot,
-      stdio: 'inherit',
-      env: { ...process.env },
-    });
+    try {
+      execSync(`npx tauri build --target aarch64-apple-darwin --config '${configOverride}'`, {
+        cwd: projectRoot,
+        stdio: 'inherit',
+        env: { ...process.env },
+      });
+    } catch (buildErr: any) {
+      const stderr = buildErr.stderr?.toString() || buildErr.message || 'Unknown error';
+      throw new Error(`Tauri 빌드 실패\n${stderr}`);
+    }
 
     // Restore original icons
     if (iconPath) {
@@ -153,10 +158,11 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     }
 
     throw new Error('빌드된 .app을 찾을 수 없습니다.');
-  } catch (e) {
+  } catch (e: any) {
     // Fallback: output web folder
     if (fs.existsSync(viteDist)) {
-      console.log('  ⚠ Tauri 빌드 실패. 웹 폴더로 출력합니다.');
+      console.error(`  ⚠ Tauri 빌드 실패: ${e.message ?? e}`);
+      console.log('  웹 폴더로 출력합니다.');
       const fallbackDir = path.join(outputDir, chatName);
       fs.rmSync(fallbackDir, { recursive: true, force: true });
       fs.renameSync(viteDist, fallbackDir);
