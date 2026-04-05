@@ -1,5 +1,7 @@
 # kakao-history-packager
 
+> **This is an unofficial project and is not affiliated with, endorsed by, or associated with Kakao Corp.**
+
 카카오톡 대화 내보내기를 PC 카카오톡과 동일한 경험의 **독립 실행 macOS 앱 (.app)**으로 빌드하는 패키저입니다.
 
 ## 특징
@@ -7,9 +9,9 @@
 - PC 카카오톡과 동일한 채팅 UI
 - 이미지/동영상 타임스탬프 기반 자동 매칭
 - 검색 기능 (Cmd+F)
-- 톡서랍 (사진/동영상, 파일, 링크 분류)
-- 미디어 뷰어 (별도 윈도우)
-- 프로필 설정 (이름, 사진)
+- 톡서랍 (사진/동영상, 파일, 링크 — 별도 윈도우)
+- 미디어 뷰어 (별도 윈도우, 좌우 네비게이션)
+- 프로필 설정 (이름, 사진 — `~/.kakao-chat-viewer/`에 저장)
 - 원본 에셋 무손실 보존
 
 ## 요구사항
@@ -38,7 +40,20 @@ cd src/viewer && pnpm install && cd ../..
 npx tsx src/cli/index.ts ./path/to/Kakaotalk_Chat_상대방이름_YYYYMMDD_HHMMSS
 ```
 
-빌드가 완료되면 현재 디렉토리에 `상대방이름.app` 파일이 생성됩니다.
+빌드가 완료되면 현재 디렉토리에 `상대방이름 Kakao History.app` 파일이 생성됩니다.
+
+### CLI 옵션
+
+| 옵션 | 설명 | 기본값 |
+|---|---|---|
+| `--output, -o <경로>` | 출력 디렉토리 | 현재 디렉토리 |
+| `--name, -n <이름>` | 앱 이름 | `{상대방} Kakao History` |
+| `--icon, -i <경로>` | 앱 아이콘 PNG (자동 crop-to-fill) | 기본 아이콘 |
+
+```bash
+# 커스텀 이름 + 아이콘
+npx tsx src/cli/index.ts ./내보내기폴더 --name "우리의 대화" --icon ./custom-icon.png
+```
 
 ### 개발 서버
 
