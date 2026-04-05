@@ -179,6 +179,10 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
       },
     });
 
+    // Clean previous bundle to prevent stale resource caching
+    const bundleDir = path.join(tauriDir, 'target/aarch64-apple-darwin/release/bundle');
+    fs.rmSync(bundleDir, { recursive: true, force: true });
+
     try {
       execSync(`npx tauri build --target aarch64-apple-darwin --bundles app --config '${configOverride}'`, {
         cwd: projectRoot,
