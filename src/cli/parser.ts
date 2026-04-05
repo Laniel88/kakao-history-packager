@@ -3,7 +3,7 @@ import type { ChatItem, Message, DateSeparator, ChatMetadata, MessageContentType
 // 2025년 1월 1일 수요일
 const DATE_LINE_RE = /^(\d{4})년 (\d{1,2})월 (\d{1,2})일 (.+요일)$/;
 
-// 2025. 1. 1. 오전 12:23, 홍길동 : 할아버지 새해 복 많이 받으세요
+// 2025. 1. 1. 오전 12:23, 홍길동 : 안녕하세요
 const MESSAGE_LINE_RE = /^(\d{4})\. (\d{1,2})\. (\d{1,2})\. (오전|오후) (\d{1,2}):(\d{2}), (.+?) : ([\s\S]*)$/;
 
 // 저장한 날짜 : 2026. 4. 5. 오후 12:37
