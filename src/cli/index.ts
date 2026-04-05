@@ -40,6 +40,7 @@ async function main() {
   --name, -n <이름>       앱 이름 (기본: "{상대방} Kakao History")
   --icon, -i <경로>       앱 아이콘 PNG 경로 (RGBA, 512x512 권장)
   --me <이름>             "나"의 이름 (자동 감지 실패 시 지정)
+  --chunk-size <숫자>     청크 크기 (기본: 5000, 클수록 스크롤 부드러움)
   --help, -h              도움말
 `);
     process.exit(0);
@@ -52,6 +53,8 @@ async function main() {
   const customName = getArgValue(args, '--name', '-n');
   const customIcon = getArgValue(args, '--icon', '-i');
   const customMe = getArgValue(args, '--me');
+  const chunkSizeStr = getArgValue(args, '--chunk-size');
+  const chunkSize = chunkSizeStr ? parseInt(chunkSizeStr, 10) : undefined;
 
   // Validate custom icon
   if (customIcon) {
@@ -129,6 +132,7 @@ async function main() {
     outputDir,
     appName,
     iconPath: customIcon ? path.resolve(customIcon) : undefined,
+    chunkSize,
   });
 
   console.log(`\n✅ 완료: ${result}`);

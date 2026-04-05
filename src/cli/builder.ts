@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process';
 import sharp from 'sharp';
 import type { ChatData, ChatItem, ChunkMetadata, ItemTypeHint, LinkEntry } from './types.js';
 
-const CHUNK_SIZE = 500;
+const DEFAULT_CHUNK_SIZE = 5000;
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
 
 function getTypeHint(item: ChatItem): ItemTypeHint {
@@ -31,11 +31,11 @@ function extractLinks(items: ChatItem[]): LinkEntry[] {
   return links;
 }
 
-function generateChunkedData(chatData: ChatData) {
+function generateChunkedData(chatData: ChatData, chunkSize: number) {
   const { items } = chatData;
   const chunks: ChatItem[][] = [];
-  for (let i = 0; i < items.length; i += CHUNK_SIZE) {
-    chunks.push(items.slice(i, i + CHUNK_SIZE));
+  for (let i = 0; i < items.length; i += chunkSize) {
+    chunks.push(items.slice(i, i + chunkSize));
   }
 
   const metadata: ChunkMetadata = {
@@ -45,7 +45,7 @@ function generateChunkedData(chatData: ChatData) {
     myName: chatData.metadata.myName,
     totalMessages: chatData.metadata.totalMessages,
     totalItems: items.length,
-    chunkSize: CHUNK_SIZE,
+    chunkSize,
     chunkCount: chunks.length,
     itemTypeHints: items.map(getTypeHint).join(''),
     assetManifest: chatData.assetManifest,
@@ -62,6 +62,7 @@ export interface BuildOptions {
   outputDir: string;
   appName: string;
   iconPath?: string;
+  chunkSize?: number;
 }
 
 const LOCKFILE = 'kakao-packager.lock';
@@ -121,7 +122,7 @@ async function generateIcns(inputPath: string, outputDir: string): Promise<strin
 }
 
 export async function buildViewer(options: BuildOptions): Promise<string> {
-  const { chatData, inputFolder, assetFiles, outputDir, appName, iconPath } = options;
+  const { chatData, inputFolder, assetFiles, outputDir, appName, iconPath, chunkSize = DEFAULT_CHUNK_SIZE } = options;
   const chatName = chatData.metadata.chatName;
 
   const projectRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
@@ -155,7 +156,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
       fs.copyFileSync(path.join(inputFolder, file), path.join(resAssetsDir, file));
     }
     // Generate chunked data
-    const { metadata, chunks } = generateChunkedData(chatData);
+    const { metadata, chunks } = generateChunkedData(chatData, chunkSize);
     fs.writeFileSync(path.join(resDataDir, 'metadata.json'), JSON.stringify(metadata), 'utf-8');
     const chunksDir = path.join(resDataDir, 'chunks');
     fs.mkdirSync(chunksDir, { recursive: true });

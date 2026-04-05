@@ -160,7 +160,16 @@
 
   $effect(() => {
     if (items.length > 0) {
+      // Compensate scroll position when heights change above viewport
+      const anchorIndex = container ? findStartIndex(container.scrollTop) : 0;
+      const oldOffset = prefixHeights[anchorIndex] ?? 0;
       buildPrefixSums();
+      if (container) {
+        const delta = prefixHeights[anchorIndex] - oldOffset;
+        if (Math.abs(delta) > 1) {
+          container.scrollTop += delta;
+        }
+      }
       updateVisibleRange();
     }
   });
