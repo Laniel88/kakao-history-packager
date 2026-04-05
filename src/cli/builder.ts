@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import type { ChatData } from './types.js';
 
 export interface BuildOptions {

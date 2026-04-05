@@ -5,6 +5,7 @@
   import MediaPopup from './MediaPopup.svelte';
 
   let activeTab: 'media' | 'files' | 'links' = $state('media');
+  const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
 
   const mediaItems = $derived(
     ($chatData?.assetManifest ?? [])
@@ -31,11 +32,10 @@
 
   const linkItems = $derived.by(() => {
     const items = $chatData?.items ?? [];
-    const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
     const links: { url: string; sender: string; timestamp: number }[] = [];
     for (const item of items) {
       if (item.type !== 'message' || item.contentType !== 'text') continue;
-      const matches = item.text.match(urlRegex);
+      const matches = item.text.match(URL_REGEX);
       if (matches) {
         for (const url of matches) {
           links.push({ url, sender: item.sender, timestamp: item.timestamp });

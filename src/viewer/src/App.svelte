@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { chatData, isLoading, loadChatData } from './stores/chat';
+  import { initSettings } from './stores/settings';
   import Header from './components/Header.svelte';
   import ChatView from './components/ChatView.svelte';
   import InputArea from './components/InputArea.svelte';
@@ -12,8 +13,9 @@
   const viewParam = new URLSearchParams(window.location.search).get('view');
   let chatView: ChatView;
 
-  onMount(() => {
-    loadChatData();
+  onMount(async () => {
+    await loadChatData();
+    await initSettings();
   });
 
   function handleSearchNavigate(index: number) {

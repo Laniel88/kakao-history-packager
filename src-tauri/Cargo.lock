@@ -1903,6 +1903,7 @@ dependencies = [
 name = "kakao-chat-viewer"
 version = "1.0.0"
 dependencies = [
+ "dirs",
  "serde",
  "serde_json",
  "tauri",
