@@ -7,3 +7,4 @@ src/viewer/public/chat-data.json
 src/viewer/public/assets/
 src-tauri/target/
 .기획/
+kakao-packager.lock
