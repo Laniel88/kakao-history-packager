@@ -3,7 +3,11 @@
   import { isSearchOpen, isSettingsOpen } from '../stores/ui';
   import { settings } from '../stores/settings';
 
-  let { metadata }: { metadata: ChunkMetadata } = $props();
+  let { metadata, onScrollToTop, onScrollToBottom }: {
+    metadata: ChunkMetadata;
+    onScrollToTop?: () => void;
+    onScrollToBottom?: () => void;
+  } = $props();
 
   let showHamburgerMenu = $state(false);
 
@@ -125,6 +129,19 @@
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="hamburger-backdrop" onclick={() => showHamburgerMenu = false} onkeydown={() => {}}></div>
         <div class="hamburger-menu">
+          <button class="menu-item" onclick={() => { showHamburgerMenu = false; onScrollToTop?.(); }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#555">
+              <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+            </svg>
+            가장 위로 이동
+          </button>
+          <button class="menu-item" onclick={() => { showHamburgerMenu = false; onScrollToBottom?.(); }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#555">
+              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+            </svg>
+            가장 아래로 이동
+          </button>
+          <div class="menu-divider"></div>
           <button class="menu-item" onclick={openDrawer}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#555">
               <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
@@ -318,5 +335,11 @@
 
   .menu-item:hover {
     background: #f5f5f5;
+  }
+
+  .menu-divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 4px 0;
   }
 </style>

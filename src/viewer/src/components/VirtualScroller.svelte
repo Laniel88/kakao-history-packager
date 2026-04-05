@@ -141,6 +141,8 @@
   export function scrollToBottom() {
     if (container) {
       container.scrollTop = container.scrollHeight;
+      updateVisibleRange();
+      requestAnimationFrame(measureRenderedItems);
     }
   }
 

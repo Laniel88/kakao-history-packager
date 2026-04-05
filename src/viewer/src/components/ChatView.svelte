@@ -51,6 +51,14 @@
   export function scrollToItem(index: number) {
     scroller?.scrollToItem(index);
   }
+
+  export function scrollToTop() {
+    scroller?.scrollToItem(0);
+  }
+
+  export function scrollToBottom() {
+    scroller?.scrollToBottom();
+  }
 </script>
 
 <VirtualScroller bind:this={scroller} {items} onVisibleRangeChange={handleVisibleRangeChange}>

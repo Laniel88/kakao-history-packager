@@ -17,6 +17,7 @@
   } = $props();
 
   const profilePhoto = $derived($settings.otherProfilePhoto);
+  const displayName = $derived($settings.otherName || message.sender);
 
   const isActiveResult = $derived($searchResultIndex === message.id);
 
@@ -107,7 +108,7 @@
     </div>
     <div class="content-area">
       {#if showProfile}
-        <span class="sender-name">{message.sender}</span>
+        <span class="sender-name">{displayName}</span>
       {/if}
       <div class="bubble-row">
         <div class="bubble other-bubble" class:has-tail={showTail}>

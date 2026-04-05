@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { get } from 'svelte/store';
   import { metadata, items, isLoading, loadChatData } from './stores/chat';
   import { initSettings } from './stores/settings';
@@ -23,6 +23,8 @@
       if (meta && meta.totalItems > 0) {
         const lastChunk = meta.chunkCount - 1;
         await ensureChunksLoaded(lastChunk * meta.chunkSize, meta.totalItems);
+        await tick();
+        chatView?.scrollToBottom();
       }
     }
     // Settings only needed for main chat view
@@ -57,7 +59,7 @@
     {#if $isLoading}
       <div class="loading">로딩 중...</div>
     {:else if $metadata}
-      <Header metadata={$metadata} />
+      <Header metadata={$metadata} onScrollToTop={() => chatView?.scrollToTop()} onScrollToBottom={() => chatView?.scrollToBottom()} />
       <SearchBar items={$items} onNavigate={handleSearchNavigate} />
       <ChatView bind:this={chatView} items={$items} />
       <InputArea />
