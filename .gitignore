@@ -8,4 +8,4 @@ src/viewer/public/assets/
 src-tauri/target/
 .기획/
 kakao-packager.lock
-.tmp-iconset/
+*.iconset/

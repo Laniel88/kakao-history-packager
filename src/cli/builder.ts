@@ -36,7 +36,7 @@ function releaseLock(projectRoot: string): void {
 }
 
 function generateIcns(pngPath: string, icnsPath: string): void {
-  const iconsetDir = path.join(path.dirname(pngPath), '.tmp-iconset');
+  const iconsetDir = path.join(path.dirname(pngPath), 'app.iconset');
   fs.mkdirSync(iconsetDir, { recursive: true });
   const sizes = [16, 32, 64, 128, 256, 512, 1024];
   const names: [number, string][] = [
@@ -94,7 +94,8 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     if (iconPath) {
       // Crop-to-fill 1024x1024 using sips (macOS built-in)
       const tmpIcon = path.join(tauriDir, 'icons/.icon-tmp.png');
-      fs.copyFileSync(iconPath, tmpIcon);
+      // Convert to PNG (handles JPEG, HEIC, etc.) + crop-to-fill 1024x1024
+      execSync(`sips -s format png "${iconPath}" --out "${tmpIcon}"`, { stdio: 'pipe' });
       const info = execSync(`sips -g pixelWidth -g pixelHeight "${tmpIcon}"`, { encoding: 'utf-8' });
       const w = parseInt(info.match(/pixelWidth:\s*(\d+)/)?.[1] ?? '0');
       const h = parseInt(info.match(/pixelHeight:\s*(\d+)/)?.[1] ?? '0');
