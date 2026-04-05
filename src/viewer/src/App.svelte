@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import { metadata, items, isLoading, loadChatData } from './stores/chat';
   import { initSettings } from './stores/settings';
   import Header from './components/Header.svelte';
@@ -15,7 +16,19 @@
 
   onMount(async () => {
     await loadChatData();
-    await initSettings();
+    // Main chat view: pre-load initial chunks for bottom scroll
+    if (!viewParam) {
+      const { ensureChunksLoaded } = await import('./stores/chat');
+      const meta = get(metadata);
+      if (meta && meta.totalItems > 0) {
+        const lastChunk = meta.chunkCount - 1;
+        await ensureChunksLoaded(lastChunk * meta.chunkSize, meta.totalItems);
+      }
+    }
+    // Settings only needed for main chat view
+    if (!viewParam) {
+      await initSettings();
+    }
   });
 
   function handleSearchNavigate(index: number) {

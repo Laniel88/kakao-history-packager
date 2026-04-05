@@ -169,7 +169,6 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     console.log('🍎 .app 빌드 중 (Tauri)...');
     const configOverride = JSON.stringify({
       productName: 'KakaoChat',
-      app: { windows: [{ title: '' }] },
       bundle: {
         icon: [path.relative(tauriDir, icnsPath)],
         resources: {

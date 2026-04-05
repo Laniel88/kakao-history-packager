@@ -119,7 +119,6 @@ export async function loadChatData() {
     const { loadResourceJson, resolveAssetUrls } = await import('../lib/tauri');
 
     try {
-      // Try chunked format first
       const meta = await loadResourceJson<ChunkMetadata>('data/metadata.json');
       _metadata = meta;
       metadata.set(meta);
@@ -127,14 +126,7 @@ export async function loadChatData() {
       // Initialize sparse items array
       items.set(new Array(meta.totalItems).fill(null));
 
-      // Load last chunk (chat starts at bottom) + first chunk
-      const lastChunk = meta.chunkCount - 1;
-      await ensureChunksLoaded(lastChunk * meta.chunkSize, meta.totalItems);
-      if (lastChunk > 0) {
-        await ensureChunksLoaded(0, Math.min(meta.chunkSize, meta.totalItems));
-      }
-
-      // Resolve asset URLs
+      // Resolve asset URLs (needed by all views)
       await resolveAssetUrls(meta.assetManifest.map(a => a.filename));
     } catch {
       // Fallback: legacy single-file format (dev mode)

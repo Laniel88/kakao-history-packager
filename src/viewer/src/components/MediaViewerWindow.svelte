@@ -36,7 +36,7 @@
   }
 
   function next() {
-    if (currentIndex < mediaMessages.length - 1) currentIndex++;
+    if (currentIndex < mediaItems.length - 1) currentIndex++;
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -72,7 +72,7 @@
       </button>
     {/if}
 
-    {#if currentIndex < mediaMessages.length - 1}
+    {#if currentIndex < mediaItems.length - 1}
       <button class="nav-btn nav-next" onclick={next}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round">
           <path d="M9 18l6-6-6-6"/>

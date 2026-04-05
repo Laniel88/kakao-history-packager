@@ -1,35 +1,35 @@
 import { writable } from 'svelte/store';
 
-const isTauri = typeof window !== 'undefined' && !!(window as any).__TAURI__;
-
 // Asset URL map: filename -> webview-accessible URL
 export const assetUrlMap = writable<Map<string, string>>(new Map());
 
 export async function resolveAssetUrls(filenames: string[]) {
   const map = new Map<string, string>();
-
-  if (isTauri) {
-    // Use custom res:// protocol registered in Rust
-    for (const f of filenames) {
-      map.set(f, `res://localhost/assets/${f}`);
-    }
-  } else {
-    for (const f of filenames) {
-      map.set(f, `assets/${f}`);
-    }
+  // In Tauri, use res:// protocol; in dev, use relative paths
+  const prefix = (window as any).__TAURI_INTERNALS__ ? 'res://localhost/assets/' : 'assets/';
+  for (const f of filenames) {
+    map.set(f, prefix + f);
   }
-
   assetUrlMap.set(map);
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ]);
+}
+
 export async function loadResourceJson<T>(path: string): Promise<T> {
-  if (isTauri) {
+  // Try Tauri invoke first (with timeout to handle IPC not ready), fall back to fetch
+  try {
     const { invoke } = await import('@tauri-apps/api/core');
-    const json = await invoke<string>('read_resource', { path });
+    const json = await withTimeout(invoke<string>('read_resource', { path }), 3000);
     return JSON.parse(json);
+  } catch {
+    const response = await fetch(path);
+    return response.json();
   }
-  const response = await fetch(path);
-  return response.json();
 }
 
 export async function openMediaViewer(filename: string) {
@@ -45,7 +45,6 @@ export async function openMediaViewer(filename: string) {
       minWidth: 400,
       minHeight: 400,
       decorations: true,
-      titleBarStyle: 'Overlay',
     });
   } catch {
     window.open(`?view=media&file=${encodeURIComponent(filename)}`, '_blank', 'width=600,height=700');
