@@ -2,7 +2,9 @@
 
 > **This is an unofficial project and is not affiliated with, endorsed by, or associated with Kakao Corp.**
 
-카카오톡 대화 내보내기를 PC 카카오톡과 동일한 경험의 **독립 실행 macOS 앱 (.app)**으로 빌드하는 패키저입니다.
+![](./.github/screenshot.png)
+
+카카오톡 대화 내보내기를 PC 카카오톡과 동일한 경험의 **독립 실행 macOS 앱 (.app)** 으로 빌드하는 패키저입니다.
 
 ## 특징
 
@@ -46,13 +48,13 @@ npx tsx src/cli/index.ts ./path/to/Kakaotalk_Chat_상대방이름_YYYYMMDD_HHMMS
 
 ### CLI 옵션
 
-| 옵션 | 설명 | 기본값 |
-|---|---|---|
-| `--output, -o <경로>` | 출력 디렉토리 | 현재 디렉토리 |
-| `--name, -n <이름>` | 앱 이름 | `{상대방} Kakao History` |
-| `--icon, -i <경로>` | 앱 아이콘 PNG (자동 crop-to-fill) | 기본 아이콘 |
-| `--me <이름>` | "나"의 이름 (자동 감지 실패 시 지정) | 자동 감지 |
-| `--chunk-size <숫자>` | 청크 크기 (클수록 스크롤 부드러움) | `15000` |
+| 옵션                  | 설명                                 | 기본값                   |
+| --------------------- | ------------------------------------ | ------------------------ |
+| `--output, -o <경로>` | 출력 디렉토리                        | 현재 디렉토리            |
+| `--name, -n <이름>`   | 앱 이름                              | `{상대방} Kakao History` |
+| `--icon, -i <경로>`   | 앱 아이콘 PNG (자동 crop-to-fill)    | 기본 아이콘              |
+| `--me <이름>`         | "나"의 이름 (자동 감지 실패 시 지정) | 자동 감지                |
+| `--chunk-size <숫자>` | 청크 크기 (클수록 스크롤 부드러움)   | `15000`                  |
 
 ```bash
 # 커스텀 이름 + 아이콘
@@ -71,7 +73,7 @@ cd src/viewer && pnpm dev
 
 ## 카카오톡 대화 내보내기 형식
 
-카카오톡에서 내보낸 폴더는 다음과 같은 구조입니다:
+카카오톡에서 내보낸 폴더는 다음과 같은 구조입니다 (미디어 포함 내보내기):
 
 ```
 Kakaotalk_Chat_상대방이름_YYYYMMDD_HHMMSS/
@@ -86,11 +88,11 @@ Kakaotalk_Chat_상대방이름_YYYYMMDD_HHMMSS/
 
 ## 기술 스택
 
-| 역할 | 기술 |
-|---|---|
-| CLI | Node.js + TypeScript |
-| 뷰어 | Svelte 5 + Vite |
-| 앱 빌드 | Tauri 2 |
+| 역할    | 기술                 |
+| ------- | -------------------- |
+| CLI     | Node.js + TypeScript |
+| 뷰어    | Svelte 5 + Vite      |
+| 앱 빌드 | Tauri 2              |
 
 ## 라이선스
 
