@@ -39,6 +39,7 @@ async function main() {
   --output, -o <경로>     출력 디렉토리 (기본: 현재 디렉토리)
   --name, -n <이름>       앱 이름 (기본: "{상대방} Kakao History")
   --icon, -i <경로>       앱 아이콘 PNG 경로 (RGBA, 512x512 권장)
+  --me <이름>             "나"의 이름 (자동 감지 실패 시 지정)
   --help, -h              도움말
 `);
     process.exit(0);
@@ -50,6 +51,7 @@ async function main() {
     : process.cwd();
   const customName = getArgValue(args, '--name', '-n');
   const customIcon = getArgValue(args, '--icon', '-i');
+  const customMe = getArgValue(args, '--me');
 
   // Validate custom icon
   if (customIcon) {
@@ -81,11 +83,22 @@ async function main() {
   }
 
   const chatName = extractChatName(inputFolder);
-  const myName = resolveMyName(parseResult.metadata.participants, chatName);
+  const participants = parseResult.metadata.participants;
+  let myName: string;
+
+  if (customMe) {
+    if (!participants.includes(customMe)) {
+      console.error(`❌ "${customMe}"은(는) 참여자 목록에 없습니다: ${participants.join(', ')}`);
+      process.exit(1);
+    }
+    myName = customMe;
+  } else {
+    myName = resolveMyName(participants, chatName);
+  }
   markMyMessages(parseResult.items, myName);
 
-  console.log(`  ✓ 참여자: ${parseResult.metadata.participants.join(', ')}`);
-  console.log(`  ✓ 나: ${myName}`);
+  console.log(`  ✓ 참여자: ${participants.join(', ')}`);
+  console.log(`  ✓ 나: ${myName} (${customMe ? '직접 지정' : '자동 감지'})`);
 
   // 3. Match media
   matchMediaToMessages(parseResult.items, validation.assetFiles);
