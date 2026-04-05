@@ -41,6 +41,7 @@ export function parseTxt(txtContent: string): ParseResult {
   const participants = new Set<string>();
   let currentId = 0;
   let lastMessage: Message | null = null;
+  let pendingBlanks = 0;
   let exportDate = '';
 
   // Parse header
@@ -77,6 +78,7 @@ export function parseTxt(txtContent: string): ParseResult {
       };
       items.push(separator);
       lastMessage = null;
+      pendingBlanks = 0;
       continue;
     }
 
@@ -91,6 +93,7 @@ export function parseTxt(txtContent: string): ParseResult {
       const contentType = determineContentType(content);
 
       participants.add(sender);
+      pendingBlanks = 0;
 
       // "이모티콘 XXX" → 이모티콘 메시지 + 텍스트 메시지로 분리
       const trimmedContent = content.trim();
@@ -138,17 +141,29 @@ export function parseTxt(txtContent: string): ParseResult {
       continue;
     }
 
-    // Empty line
+    // Empty line — buffer it; might be part of a multi-line message
     if (line.trim() === '') {
-      lastMessage = null;
+      if (lastMessage) {
+        pendingBlanks++;
+      }
       continue;
     }
 
     // Continuation line (multi-line message)
     if (lastMessage) {
+      // Flush buffered blank lines as part of the message
+      for (let b = 0; b < pendingBlanks; b++) {
+        lastMessage.text += '\n';
+      }
+      pendingBlanks = 0;
       lastMessage.text += '\n' + line;
       continue;
     }
+  }
+
+  // Trim trailing blank lines from the last message
+  if (lastMessage && lastMessage.text) {
+    lastMessage.text = lastMessage.text.replace(/\n+$/, '');
   }
 
   return {
