@@ -2,7 +2,58 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import sharp from 'sharp';
-import type { ChatData } from './types.js';
+import type { ChatData, ChatItem, ChunkMetadata, ItemTypeHint, LinkEntry } from './types.js';
+
+const CHUNK_SIZE = 500;
+const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
+
+function getTypeHint(item: ChatItem): ItemTypeHint {
+  if (item.type === 'date-separator') return 'd';
+  switch (item.contentType) {
+    case 'photo': return 'p';
+    case 'video': return 'v';
+    case 'emoticon': return 'e';
+    default: return 't';
+  }
+}
+
+function extractLinks(items: ChatItem[]): LinkEntry[] {
+  const links: LinkEntry[] = [];
+  for (const item of items) {
+    if (item.type !== 'message' || item.contentType !== 'text') continue;
+    const matches = item.text.match(URL_REGEX);
+    if (matches) {
+      for (const url of matches) {
+        links.push({ url, sender: item.sender, timestamp: item.timestamp });
+      }
+    }
+  }
+  return links;
+}
+
+function generateChunkedData(chatData: ChatData) {
+  const { items } = chatData;
+  const chunks: ChatItem[][] = [];
+  for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+    chunks.push(items.slice(i, i + CHUNK_SIZE));
+  }
+
+  const metadata: ChunkMetadata = {
+    chatName: chatData.metadata.chatName,
+    exportDate: chatData.metadata.exportDate,
+    participants: chatData.metadata.participants,
+    myName: chatData.metadata.myName,
+    totalMessages: chatData.metadata.totalMessages,
+    totalItems: items.length,
+    chunkSize: CHUNK_SIZE,
+    chunkCount: chunks.length,
+    itemTypeHints: items.map(getTypeHint).join(''),
+    assetManifest: chatData.assetManifest,
+    links: extractLinks(items),
+  };
+
+  return { metadata, chunks };
+}
 
 export interface BuildOptions {
   chatData: ChatData;
@@ -98,8 +149,15 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
     for (const file of assetFiles) {
       fs.copyFileSync(path.join(inputFolder, file), path.join(resAssetsDir, file));
     }
-    fs.writeFileSync(path.join(resDataDir, 'chat-data.json'), JSON.stringify(chatData), 'utf-8');
-    console.log(`  ✓ ${assetFiles.length}개 에셋 + 채팅 데이터 스테이징 완료`);
+    // Generate chunked data
+    const { metadata, chunks } = generateChunkedData(chatData);
+    fs.writeFileSync(path.join(resDataDir, 'metadata.json'), JSON.stringify(metadata), 'utf-8');
+    const chunksDir = path.join(resDataDir, 'chunks');
+    fs.mkdirSync(chunksDir, { recursive: true });
+    for (let i = 0; i < chunks.length; i++) {
+      fs.writeFileSync(path.join(chunksDir, `${i}.json`), JSON.stringify(chunks[i]), 'utf-8');
+    }
+    console.log(`  ✓ ${assetFiles.length}개 에셋 + 메타데이터 + ${chunks.length}개 청크 스테이징 완료`);
 
     // 3. Generate .icns into temp dir (source icons untouched)
     const iconSource = iconPath ?? path.join(tauriDir, 'icons/icon.png');
@@ -117,6 +175,7 @@ export async function buildViewer(options: BuildOptions): Promise<string> {
         resources: {
           '.build-resources/assets/*': 'assets/',
           '.build-resources/data/*': 'data/',
+          '.build-resources/data/chunks/*': 'data/chunks/',
         },
       },
     });

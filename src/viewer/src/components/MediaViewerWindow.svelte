@@ -1,39 +1,34 @@
 <script lang="ts">
-  import { chatData } from '../stores/chat';
-  import type { ChatItem, Message } from '../stores/chat';
+  import { metadata } from '../stores/chat';
+  import type { AssetEntry } from '../stores/chat';
   import { assetUrlMap } from '../lib/tauri';
 
-  // Parse URL params: ?view=media&file=FILENAME
   const params = new URLSearchParams(window.location.search);
   const initialFile = params.get('file') ?? '';
 
-  // All media messages in chronological order
-  const mediaMessages = $derived(
-    ($chatData?.items ?? []).filter(
-      (item): item is Message =>
-        item.type === 'message' &&
-        (item.contentType === 'photo' || item.contentType === 'video') &&
-        item.mediaFilename !== null
-    )
+  // Media list from assetManifest (no chunk loading needed)
+  const mediaItems = $derived(
+    ($metadata?.assetManifest ?? [])
+      .filter(a => a.type === 'image' || a.type === 'video')
+      .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
   );
 
   let currentIndex = $state(0);
 
-  // Find initial index from filename
   $effect(() => {
-    if (initialFile && mediaMessages.length > 0) {
-      const idx = mediaMessages.findIndex(m => m.mediaFilename === initialFile);
+    if (initialFile && mediaItems.length > 0) {
+      const idx = mediaItems.findIndex(m => m.filename === initialFile);
       if (idx >= 0) currentIndex = idx;
     }
   });
 
-  const currentMedia = $derived(mediaMessages[currentIndex]);
+  const currentMedia = $derived(mediaItems[currentIndex]);
 
   const titleText = $derived.by(() => {
-    if (!currentMedia) return '';
+    if (!currentMedia || !currentMedia.timestamp) return '';
     const d = new Date(currentMedia.timestamp);
     const dateStr = `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
-    return `${currentMedia.sender}, ${dateStr}`;
+    return `${$metadata?.chatName ?? ''}, ${dateStr}`;
   });
 
   function prev() {
@@ -59,11 +54,11 @@
 
   <div class="viewer-content">
     {#if currentMedia}
-      {#if currentMedia.contentType === 'photo'}
-        <img src={$assetUrlMap.get(currentMedia.mediaFilename!) ?? ''} alt="" class="viewer-image" />
+      {#if currentMedia.type === 'image'}
+        <img src={$assetUrlMap.get(currentMedia.filename) ?? ''} alt="" class="viewer-image" />
       {:else}
         <!-- svelte-ignore a11y_media_has_caption -->
-        <video src={$assetUrlMap.get(currentMedia.mediaFilename!) ?? ''} controls class="viewer-video"></video>
+        <video src={$assetUrlMap.get(currentMedia.filename) ?? ''} controls class="viewer-video"></video>
       {/if}
     {:else}
       <div class="empty">미디어를 찾을 수 없습니다</div>

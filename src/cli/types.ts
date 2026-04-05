@@ -39,3 +39,26 @@ export interface ChatData {
   items: ChatItem[];
   assetManifest: AssetEntry[];
 }
+
+// d=date, t=text, p=photo, v=video, e=emoticon
+export type ItemTypeHint = 'd' | 't' | 'p' | 'v' | 'e';
+
+export interface LinkEntry {
+  url: string;
+  sender: string;
+  timestamp: number;
+}
+
+export interface ChunkMetadata {
+  chatName: string;
+  exportDate: string;
+  participants: string[];
+  myName: string;
+  totalMessages: number;
+  totalItems: number;
+  chunkSize: number;
+  chunkCount: number;
+  itemTypeHints: string; // "dttptdtt..." — 1 char per item
+  assetManifest: AssetEntry[];
+  links: LinkEntry[];
+}

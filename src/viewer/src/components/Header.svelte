@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { ChatMetadata } from '../stores/chat';
+  import type { ChunkMetadata } from '../stores/chat';
   import { isSearchOpen, isSettingsOpen } from '../stores/ui';
   import { settings } from '../stores/settings';
 
-  let { metadata }: { metadata: ChatMetadata } = $props();
+  let { metadata }: { metadata: ChunkMetadata } = $props();
 
   let showHamburgerMenu = $state(false);
 

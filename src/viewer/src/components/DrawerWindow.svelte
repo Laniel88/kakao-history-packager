@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { chatData } from '../stores/chat';
+  import { metadata } from '../stores/chat';
   import type { AssetEntry } from '../stores/chat';
   import { openMediaViewer, assetUrlMap } from '../lib/tauri';
 
   let activeTab: 'media' | 'files' | 'links' = $state('media');
-  const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g;
 
   const mediaItems = $derived(
-    ($chatData?.assetManifest ?? [])
+    ($metadata?.assetManifest ?? [])
       .filter(a => a.type === 'image' || a.type === 'video')
       .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0))
   );
@@ -26,29 +25,17 @@
   });
 
   const fileItems = $derived(
-    ($chatData?.assetManifest ?? []).filter(a => a.type === 'other')
+    ($metadata?.assetManifest ?? []).filter(a => a.type === 'other')
   );
 
-  const linkItems = $derived.by(() => {
-    const items = $chatData?.items ?? [];
-    const links: { url: string; sender: string; timestamp: number }[] = [];
-    for (const item of items) {
-      if (item.type !== 'message' || item.contentType !== 'text') continue;
-      const matches = item.text.match(URL_REGEX);
-      if (matches) {
-        for (const url of matches) {
-          links.push({ url, sender: item.sender, timestamp: item.timestamp });
-        }
-      }
-    }
-    return links.reverse();
-  });
+  // Links are pre-extracted at build time in metadata
+  const linkItems = $derived(($metadata?.links ?? []).slice().reverse());
 
 </script>
 
 <div class="drawer-window">
   <div class="drawer-header">
-    <span class="drawer-title">{$chatData?.metadata.chatName ?? ''} &rsaquo;</span>
+    <span class="drawer-title">{$metadata?.chatName ?? ''} &rsaquo;</span>
   </div>
 
   <div class="drawer-tabs">

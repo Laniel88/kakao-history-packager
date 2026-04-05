@@ -10,10 +10,12 @@
     items,
     overscan = 20,
     children,
+    onVisibleRangeChange,
   }: {
-    items: ChatItem[];
+    items: (ChatItem | null)[];
     overscan?: number;
-    children: Snippet<[ChatItem, number]>;
+    children: Snippet<[ChatItem | null, number]>;
+    onVisibleRangeChange?: (start: number, end: number) => void;
   } = $props();
 
   let container: HTMLDivElement;
@@ -25,7 +27,8 @@
   // prefixHeights[0] = 0, prefixHeights[n] = total height
   let prefixHeights = new Float64Array(1);
 
-  function estimateHeight(item: ChatItem): number {
+  function estimateHeight(item: ChatItem | null): number {
+    if (!item) return 44; // placeholder height
     const cached = heightCache.get(item.id);
     if (cached !== undefined) return cached;
     if (item.type === 'date-separator') return 44;
@@ -96,6 +99,8 @@
     visibleEnd = newEnd;
     topSpacerHeight = prefixHeights[newStart];                                        // O(1)
     bottomSpacerHeight = prefixHeights[items.length] - prefixHeights[newEnd];         // O(1)
+
+    onVisibleRangeChange?.(newStart, newEnd);
   }
 
   function measureRenderedItems() {
@@ -190,8 +195,8 @@
 
 <div class="virtual-scroller" bind:this={container} onscroll={onScroll}>
   <div class="spacer" style="height:{topSpacerHeight}px"></div>
-  {#each visibleItems as { item, index } (item.id)}
-    <div data-item-id={item.id}>
+  {#each visibleItems as { item, index } (item?.id ?? `placeholder-${index}`)}
+    <div data-item-id={item?.id ?? -1}>
       {@render children(item, index)}
     </div>
   {/each}

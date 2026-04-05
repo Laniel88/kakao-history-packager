@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { chatData, isLoading, loadChatData } from './stores/chat';
+  import { metadata, items, isLoading, loadChatData } from './stores/chat';
   import { initSettings } from './stores/settings';
   import Header from './components/Header.svelte';
   import ChatView from './components/ChatView.svelte';
@@ -27,7 +27,7 @@
   <div class="drawer-standalone">
     {#if $isLoading}
       <div class="loading">로딩 중...</div>
-    {:else if $chatData}
+    {:else if $metadata}
       <DrawerWindow />
     {/if}
   </div>
@@ -35,19 +35,18 @@
   <div class="media-standalone">
     {#if $isLoading}
       <div class="loading">로딩 중...</div>
-    {:else if $chatData}
+    {:else if $metadata}
       <MediaViewerWindow />
     {/if}
   </div>
 {:else}
-  <!-- Main chat window -->
   <div class="app-container">
     {#if $isLoading}
       <div class="loading">로딩 중...</div>
-    {:else if $chatData}
-      <Header metadata={$chatData.metadata} />
-      <SearchBar items={$chatData.items} onNavigate={handleSearchNavigate} />
-      <ChatView bind:this={chatView} items={$chatData.items} />
+    {:else if $metadata}
+      <Header metadata={$metadata} />
+      <SearchBar items={$items} onNavigate={handleSearchNavigate} />
+      <ChatView bind:this={chatView} items={$items} />
       <InputArea />
       <SettingsModal />
     {:else}

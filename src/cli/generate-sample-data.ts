@@ -3,7 +3,7 @@ import path from 'node:path';
 import { validateInputFolder } from './validator.js';
 import { parseTxt, resolveMyName, markMyMessages } from './parser.js';
 import { matchMediaToMessages, buildAssetManifest } from './media-matcher.js';
-import type { ChatData } from './types.js';
+import type { ChatData, ChatItem, ChunkMetadata, ItemTypeHint } from './types.js';
 
 const sampleDir = path.resolve('sample');
 const validation = validateInputFolder(sampleDir);
@@ -20,25 +20,38 @@ const myName = resolveMyName(parseResult.metadata.participants, chatName);
 markMyMessages(parseResult.items, myName);
 matchMediaToMessages(parseResult.items, validation.assetFiles);
 
+const items = parseResult.items;
+const assetManifest = buildAssetManifest(validation.assetFiles);
+
+function getTypeHint(item: ChatItem): ItemTypeHint {
+  if (item.type === 'date-separator') return 'd';
+  switch (item.contentType) {
+    case 'photo': return 'p';
+    case 'video': return 'v';
+    case 'emoticon': return 'e';
+    default: return 't';
+  }
+}
+
+// Generate legacy format for dev mode (single file fallback)
 const chatData: ChatData = {
   metadata: {
     chatName,
     exportDate: parseResult.metadata.exportDate,
     participants: parseResult.metadata.participants,
     myName,
-    totalMessages: parseResult.items.filter(i => i.type === 'message').length,
+    totalMessages: items.filter(i => i.type === 'message').length,
   },
-  items: parseResult.items,
-  assetManifest: buildAssetManifest(validation.assetFiles),
+  items,
+  assetManifest,
 };
 
-// Write JSON for viewer development (data/ subdirectory for Tauri resource path compat)
 const dataDir = path.resolve('src/viewer/public/data');
 fs.mkdirSync(dataDir, { recursive: true });
 fs.writeFileSync(path.join(dataDir, 'chat-data.json'), JSON.stringify(chatData, null, 2), 'utf-8');
 console.log(`Written to ${dataDir}/chat-data.json`);
 
-// Copy assets to viewer public
+// Copy assets
 const assetsDir = path.resolve('src/viewer/public/assets');
 fs.mkdirSync(assetsDir, { recursive: true });
 for (const file of validation.assetFiles) {

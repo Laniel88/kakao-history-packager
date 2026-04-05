@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store';
-import { chatData } from './chat';
+import { metadata } from './chat';
 
 export interface UserSettings {
   otherName: string;
@@ -13,8 +13,8 @@ let initialized = false;
 let unsubscribe: (() => void) | null = null;
 
 export async function initSettings() {
-  const data = get(chatData);
-  const chatName = data?.metadata.chatName ?? '';
+  const data = get(metadata);
+  const chatName = data?.chatName ?? '';
 
   try {
     const { invoke } = await import('@tauri-apps/api/core');
