@@ -226,7 +226,7 @@
     line-height: 1.5;
     word-break: break-word;
     white-space: pre-wrap;
-    max-width: 300px;
+    max-width: 380px;
     position: relative;
   }
 
@@ -261,9 +261,9 @@
   }
 
   .chat-image {
-    max-width: 200px;
-    max-height: 260px;
-    border-radius: 8px;
+    max-width: 280px;
+    max-height: 360px;
+    border-radius: 12px;
     display: block;
     object-fit: cover;
     cursor: pointer;
@@ -296,9 +296,14 @@
     justify-content: center;
   }
 
-  /* Remove padding from bubbles containing only images/video */
+  /* Images/videos render without bubble background */
   .bubble:has(.chat-image),
-  .bubble:has(.video-thumbnail),
+  .bubble:has(.video-thumbnail) {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
   .bubble:has(.image-placeholder) {
     padding: 4px;
   }

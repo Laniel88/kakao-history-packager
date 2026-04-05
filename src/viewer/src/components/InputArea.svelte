@@ -8,41 +8,48 @@
   </div>
   <div class="input-bottom">
     <div class="input-toolbar">
+      <!-- 이모티콘 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke-linecap="round"/>
-          <circle cx="9" cy="9.5" r="1" fill="#999" stroke="none"/>
-          <circle cx="15" cy="9.5" r="1" fill="#999" stroke="none"/>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+          <line x1="9" y1="9" x2="9.01" y2="9"/>
+          <line x1="15" y1="9" x2="15.01" y2="9"/>
         </svg>
       </button>
+      <!-- 체크/할일 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
-          <path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <path d="M9 12l2 2 4-4"/>
         </svg>
       </button>
+      <!-- 말풍선 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <path d="M3 15l5-5 4 4 3-3 6 6" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="15.5" cy="8.5" r="1.5" fill="#999" stroke="none"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
         </svg>
       </button>
+      <!-- 문서/파일 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
-          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
         </svg>
       </button>
+      <!-- 공유/업로드 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.5">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <path d="M12 8v8M8 12l4-4 4 4"/>
         </svg>
       </button>
+      <!-- 더보기 -->
       <button class="toolbar-icon" disabled>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#999" stroke="none">
-          <circle cx="12" cy="6" r="1.5"/>
-          <circle cx="12" cy="12" r="1.5"/>
-          <circle cx="12" cy="18" r="1.5"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="12" cy="6" r="0.5" fill="#aaa"/>
+          <circle cx="12" cy="12" r="0.5" fill="#aaa"/>
+          <circle cx="12" cy="18" r="0.5" fill="#aaa"/>
         </svg>
       </button>
     </div>
@@ -83,8 +90,8 @@
   }
 
   .toolbar-icon {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -92,7 +99,6 @@
     background: transparent;
     border-radius: 4px;
     cursor: default;
-    opacity: 0.55;
   }
 
   .send-button {
